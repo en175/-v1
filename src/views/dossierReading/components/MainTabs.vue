@@ -1,111 +1,88 @@
 <template>
   <div class="middle-panel">
-    <div class="wb-tabs">
-      <div 
-        v-for="tab in tabs" 
-        :key="tab.key" 
-        class="wb-tab-item" 
-        :class="{ active: currentTab === tab.key }"
-        @click="currentTab = tab.key"
-      >
-        {{ tab.label }}
-      </div>
+    <div class="panel-header">
+      <span>证据工作台</span>
+      <span class="wb-badge wb-badge-info">{{ currentFocus.request }}</span>
     </div>
-    
     <div class="panel-content">
-      <div v-if="currentTab === 'overview'">
-        <div class="wb-card section-card">
-          <h2 class="text-title" style="margin-top: 0; font-size: 18px;">{{ caseInfo.caseNo }}</h2>
-          <div class="overview-grid">
-            <div class="info-row"><span class="wb-label">案由</span>{{ caseInfo.caseReason }}</div>
-            <div class="info-row"><span class="wb-label">标的额</span>{{ caseInfo.amount }}</div>
-            <div class="info-row"><span class="wb-label">申请人</span>{{ caseInfo.claimant }}</div>
-            <div class="info-row"><span class="wb-label">被申请人</span>{{ caseInfo.respondent }}</div>
-            <div class="info-row"><span class="wb-label">程序状态</span><span class="wb-badge wb-badge-info">{{ caseInfo.status }}</span></div>
-            <div class="info-row"><span class="wb-label">立案时间</span>{{ caseInfo.filingDate }}</div>
-            <div class="info-row" style="grid-column: span 2;"><span class="wb-label">调解员</span>{{ caseInfo.mediator }}</div>
-          </div>
-          <div class="case-summary">
-            <strong>案情摘要：</strong>{{ caseInfo.summary }}
-          </div>
-        </div>
-
-        <div class="wb-card section-card">
-          <h3 class="text-title" style="margin-top: 0; font-size: 16px; margin-bottom: 12px;">风险提示</h3>
-          <ul class="warn-list risk">
-            <li v-for="(risk, idx) in caseInfo.risks" :key="idx">{{ risk }}</li>
-          </ul>
-        </div>
-
-        <div class="wb-card section-card">
-          <h3 class="text-title" style="margin-top: 0; font-size: 16px; margin-bottom: 12px;">待确认事项</h3>
-          <ul class="warn-list todo">
-            <li v-for="(todo, idx) in caseInfo.todos" :key="idx">{{ todo }}</li>
-          </ul>
+      <div class="wb-card top-summary">
+        <h3 class="text-title summary-title">{{ currentFocus.title }}</h3>
+        <p class="summary-text">{{ caseInfo.summary }}</p>
+        <div class="summary-meta">
+          <span>案号：{{ caseInfo.caseNo }}</span>
+          <span>案由：{{ caseInfo.caseReason }}</span>
+          <span>程序：{{ caseInfo.status }}</span>
+          <span>标的：{{ caseInfo.amount }}</span>
         </div>
       </div>
 
-      <div v-if="currentTab === 'claims'">
-        <div v-for="focus in claims" :key="focus.id" class="wb-card section-card">
-          <h3 class="text-title focus-title">{{ focus.focus }}</h3>
-          <div v-for="request in focus.requests" :key="request.id" class="request-block">
-            <div class="request-head">
-              <span>{{ request.title }}</span>
-              <span class="wb-badge wb-badge-info">请求</span>
+      <div class="wb-card section-card">
+        <div class="section-head">
+          <h3 class="text-title section-title">待补核验</h3>
+          <span class="wb-badge wb-badge-warning">{{ currentFocus.pendingChecks.length }} 项</span>
+        </div>
+        <ul class="check-list">
+          <li v-for="(item, idx) in currentFocus.pendingChecks" :key="idx">{{ item }}</li>
+        </ul>
+      </div>
+
+      <div class="wb-card section-card">
+        <div class="section-head">
+          <h3 class="text-title section-title">证据链对账</h3>
+          <span class="wb-badge" :class="riskClass(currentFocus.riskLevel)">
+            {{ riskText(currentFocus.riskLevel) }}
+          </span>
+        </div>
+        <div
+          v-for="ev in currentFocus.evidenceSnippets"
+          :key="ev.id"
+          class="evidence-row"
+          :class="{ active: selectedAnchorId === ev.anchorId }"
+        >
+          <div class="evidence-head">
+            <div>
+              <div class="evidence-title">{{ ev.title }}</div>
+              <div class="evidence-sub">{{ ev.material }} · {{ ev.position }}</div>
             </div>
-            <div class="level-row">
-              <div class="level-label">请求要件</div>
-              <div class="level-content">
-                <div v-for="(el, idx) in request.elements" :key="idx" class="content-line">
-                  <span class="line-label">{{ el.label }}</span>
-                  <span>{{ el.content }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="level-row">
-              <div class="level-label">事实</div>
-              <div class="level-content">
-                <div v-for="(fact, idx) in request.facts" :key="idx" class="content-line fact">{{ fact }}</div>
-              </div>
-            </div>
-            <div class="level-row">
-              <div class="level-label">证据</div>
-              <div class="level-content tags">
-                <span v-for="(ev, idx) in request.evidence" :key="idx" class="wb-badge wb-badge-success">{{ ev }}</span>
-              </div>
+            <div class="evidence-tags">
+              <span class="wb-badge" :class="stanceClass(ev.stance)">{{ stanceText(ev.stance) }}</span>
+              <span class="wb-badge" :class="confidenceClass(ev.confidence)">{{ confidenceText(ev.confidence) }}</span>
             </div>
           </div>
+          <div class="evidence-content">{{ ev.content }}</div>
+          <button type="button" class="wb-btn locate-btn" @click="$emit('locate-anchor', ev.anchorId)">
+            回溯原文
+          </button>
         </div>
       </div>
 
-      <div v-if="currentTab === 'defense'">
-        <div v-for="(item, idx) in defense" :key="item.id" class="wb-card section-card">
-          <h3 class="text-title focus-title">
-            争议焦点 {{ idx + 1 }}：{{ item.focus }}
-          </h3>
-          <div class="defense-grid">
-            <div class="view-col applicant">
-              <div class="view-title">申请方观点</div>
-              <div v-for="view in item.applicantViews" :key="view.id" class="view-item" @click="locateAnchor(view.anchorId)">
-                <span>{{ view.text }}</span>
-                <button type="button" class="locate-btn">定位正文</button>
-              </div>
-            </div>
-            <div class="view-col respondent">
-              <div class="view-title">被申请方观点</div>
-              <div v-for="view in item.respondentViews" :key="view.id" class="view-item" @click="locateAnchor(view.anchorId)">
-                <span>{{ view.text }}</span>
-                <button type="button" class="locate-btn">定位正文</button>
-              </div>
-            </div>
-          </div>
+      <div class="wb-card section-card">
+        <div class="section-head">
+          <h3 class="text-title section-title">法条建议与命中依据</h3>
         </div>
-        <div class="wb-card section-card">
-          <h3 class="text-title focus-title">正文定位片段</h3>
-          <div v-for="anchor in originalAnchors" :id="anchor.id" :key="anchor.id" class="anchor-row" :class="{ active: currentAnchor === anchor.id }">
-            <div class="anchor-title">{{ anchor.title }}</div>
-            <div class="anchor-content">{{ anchor.content }}</div>
-          </div>
+        <div v-for="law in currentFocus.lawSuggestions" :key="law.id" class="law-row">
+          <div class="law-name">{{ law.lawName }}</div>
+          <div class="law-rule">{{ law.hitRule }}</div>
+          <span class="wb-badge" :class="confidenceClass(law.applicability)">{{ confidenceText(law.applicability) }}</span>
+        </div>
+      </div>
+
+      <div class="wb-card section-card">
+        <div class="section-head">
+          <h3 class="text-title section-title">原文锚点区</h3>
+        </div>
+        <div
+          v-for="anchor in originalAnchors"
+          :id="anchor.id"
+          :key="anchor.id"
+          class="anchor-row"
+          :class="{ active: selectedAnchorId === anchor.id }"
+        >
+          <div class="anchor-title">{{ anchor.title }}</div>
+          <div class="anchor-content">{{ anchor.content }}</div>
+          <button type="button" class="wb-btn wb-btn-text" @click="$emit('locate-anchor', anchor.id)">
+            定位到该片段
+          </button>
         </div>
       </div>
     </div>
@@ -113,185 +90,200 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { TABS, type CaseInfo, type ClaimFocusGroup, type DefenseFocusGroup, type OriginalAnchorText } from '../config';
+import type { CaseInfo, FocusWorkbench, OriginalAnchorText } from '../config';
 
 defineProps<{
   caseInfo: CaseInfo;
-  claims: ClaimFocusGroup[];
-  defense: DefenseFocusGroup[];
+  currentFocus: FocusWorkbench;
   originalAnchors: OriginalAnchorText[];
+  selectedAnchorId: string;
 }>();
 
-const currentTab = ref('overview');
-const tabs = TABS;
-const currentAnchor = ref('');
+defineEmits<{
+  (e: 'locate-anchor', anchorId: string): void;
+}>();
 
-const locateAnchor = (anchorId: string) => {
-  currentAnchor.value = anchorId;
-  const target = document.getElementById(anchorId);
-  if (target) {
-    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+const stanceClass = (value: 'support' | 'weaken' | 'neutral') => {
+  if (value === 'support') {
+    return 'wb-badge-success';
   }
+  if (value === 'weaken') {
+    return 'wb-badge-danger';
+  }
+  return 'wb-badge-info';
+};
+
+const confidenceClass = (value: 'high' | 'medium' | 'low') => {
+  if (value === 'high') {
+    return 'wb-badge-success';
+  }
+  if (value === 'medium') {
+    return 'wb-badge-warning';
+  }
+  return 'wb-badge-danger';
+};
+
+const riskClass = (value: 'high' | 'medium' | 'low') => {
+  if (value === 'low') {
+    return 'wb-badge-success';
+  }
+  if (value === 'medium') {
+    return 'wb-badge-warning';
+  }
+  return 'wb-badge-danger';
+};
+
+const stanceText = (value: 'support' | 'weaken' | 'neutral') => {
+  if (value === 'support') {
+    return '支持';
+  }
+  if (value === 'weaken') {
+    return '削弱';
+  }
+  return '中立';
+};
+
+const confidenceText = (value: 'high' | 'medium' | 'low') => {
+  if (value === 'high') {
+    return '高可信';
+  }
+  if (value === 'medium') {
+    return '中可信';
+  }
+  return '低可信';
+};
+
+const riskText = (value: 'high' | 'medium' | 'low') => {
+  if (value === 'low') {
+    return '低风险';
+  }
+  if (value === 'medium') {
+    return '中风险';
+  }
+  return '高风险';
 };
 </script>
 
 <style scoped>
-.info-row {
-  font-size: 14px;
-  display: flex;
-  flex-direction: column;
-}
-.overview-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+.top-summary {
+  padding: 16px;
   margin-bottom: 16px;
 }
-.case-summary {
-  background: var(--color-bg-body);
-  padding: 12px;
-  border-radius: 4px;
-  font-size: 13px;
+.summary-title {
+  margin: 0;
+  font-size: 18px;
+}
+.summary-text {
+  margin: 10px 0 0;
+  color: var(--color-text-body);
   line-height: 1.6;
+  font-size: 13px;
+}
+.summary-meta {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--color-text-sub);
+  font-size: 12px;
 }
 .section-card {
-  padding: 20px;
-  margin-bottom: 20px;
+  padding: 16px;
+  margin-bottom: 16px;
 }
-.warn-list {
-  padding-left: 20px;
-  margin: 0;
-}
-.warn-list li {
-  margin-bottom: 8px;
-  line-height: 1.5;
-}
-.warn-list.risk {
-  color: var(--color-danger);
-}
-.warn-list.todo {
-  color: var(--color-warning);
-}
-.focus-title {
-  margin-top: 0;
-  margin-bottom: 12px;
-  font-size: 16px;
-}
-.request-block {
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  padding: 14px;
-  margin-bottom: 12px;
-}
-.request-head {
+.section-head {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 10px;
-  font-size: 14px;
+}
+.section-title {
+  margin: 0;
+  font-size: 15px;
+}
+.check-list {
+  margin: 0;
+  padding-left: 20px;
+}
+.check-list li {
+  margin-bottom: 8px;
+  color: #7a5312;
+}
+.evidence-row {
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+.evidence-row.active {
+  border-color: #8eaef3;
+  box-shadow: 0 0 0 3px rgba(47, 92, 245, 0.1);
+}
+.evidence-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.evidence-title {
+  font-size: 13px;
   font-weight: 600;
+  color: var(--color-text-title);
 }
-.level-row {
-  display: grid;
-  grid-template-columns: 80px 1fr;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-.level-label {
+.evidence-sub {
+  margin-top: 4px;
   color: var(--color-text-sub);
   font-size: 12px;
-  padding-top: 2px;
 }
-.level-content {
+.evidence-tags {
+  display: flex;
+  gap: 6px;
+}
+.evidence-content {
+  margin-top: 8px;
   font-size: 13px;
   line-height: 1.6;
 }
-.content-line {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-.line-label {
-  color: var(--color-text-sub);
-  min-width: 58px;
-}
-.content-line.fact {
-  position: relative;
-  padding-left: 10px;
-}
-.content-line.fact::before {
-  content: '•';
-  position: absolute;
-  left: 0;
-  color: var(--color-primary);
-}
-.level-content.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.defense-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.view-col {
-  padding: 12px;
-  border-radius: 8px;
-}
-.view-col.applicant {
-  background: #e8f3ff;
-}
-.view-col.respondent {
-  background: #fff7e8;
-}
-.view-title {
-  font-size: 12px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-.view-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.72);
-  font-size: 13px;
-  line-height: 1.5;
-  cursor: pointer;
-}
 .locate-btn {
+  margin-top: 10px;
+}
+.law-row {
   border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: #fff;
-  padding: 2px 8px;
-  font-size: 12px;
-  color: var(--color-primary);
-  flex-shrink: 0;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+.law-name {
+  font-weight: 600;
+  font-size: 13px;
+}
+.law-rule {
+  margin: 6px 0;
+  font-size: 13px;
+  color: var(--color-text-body);
 }
 .anchor-row {
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 10px;
   margin-bottom: 8px;
-  transition: all 0.2s ease;
 }
 .anchor-row.active {
-  border-color: #bfdbfe;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
-  background: #f5f9ff;
+  border-color: #8eaef3;
+  background: #f5f8ff;
 }
 .anchor-title {
   font-size: 12px;
   color: var(--color-text-sub);
-  margin-bottom: 4px;
 }
 .anchor-content {
-  font-size: 13px;
+  margin: 6px 0 8px;
   line-height: 1.6;
+  font-size: 13px;
+}
+.wb-btn-text {
+  min-height: 30px;
+  padding: 4px 10px;
+  font-size: 12px;
 }
 </style>

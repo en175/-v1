@@ -14,6 +14,9 @@ export interface MaterialItem {
   title: string;
   type: string;
   pageCount: number;
+  source: string;
+  updatedAt: string;
+  reliability: 'high' | 'medium' | 'low';
 }
 
 export interface CaseInfo {
@@ -28,6 +31,67 @@ export interface CaseInfo {
   summary: string;
   risks: string[];
   todos: string[];
+}
+
+export interface DecisionMetric {
+  id: string;
+  label: string;
+  value: string;
+  level: 'good' | 'warning' | 'danger';
+}
+
+export interface FocusNode {
+  id: string;
+  title: string;
+  request: string;
+  evidenceCoverage: string;
+  conflictCount: number;
+  status: 'clear' | 'partial' | 'risk';
+}
+
+export interface EvidenceSnippet {
+  id: string;
+  title: string;
+  material: string;
+  position: string;
+  stance: 'support' | 'weaken' | 'neutral';
+  confidence: 'high' | 'medium' | 'low';
+  content: string;
+  anchorId: string;
+}
+
+export interface LawSuggestion {
+  id: string;
+  lawName: string;
+  hitRule: string;
+  applicability: 'high' | 'medium' | 'low';
+}
+
+export interface FocusWorkbench {
+  id: string;
+  title: string;
+  request: string;
+  riskLevel: 'high' | 'medium' | 'low';
+  pendingChecks: string[];
+  evidenceSnippets: EvidenceSnippet[];
+  lawSuggestions: LawSuggestion[];
+  draftConclusion: string;
+}
+
+export interface ConclusionDraft {
+  id: string;
+  title: string;
+  content: string;
+  confidence: 'high' | 'medium' | 'low';
+  references: string[];
+  status: 'pending' | 'accepted' | 'rejected';
+}
+
+export interface RiskAlert {
+  id: string;
+  type: 'procedure' | 'evidence' | 'logic';
+  title: string;
+  suggestion: string;
 }
 
 export interface ClaimRequest {
