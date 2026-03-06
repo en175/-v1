@@ -7,6 +7,7 @@
       <div class="action-row">
         <button class="wb-btn wb-btn-primary" @click="handleApprove">通过立案</button>
         <button class="wb-btn" @click="$emit('return')">退回补正</button>
+        <button class="wb-btn" @click="$emit('reject')">驳回</button>
         <button class="wb-btn">暂存</button>
       </div>
 
@@ -52,6 +53,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (event: 'locate-field', fieldKey: string): void;
   (event: 'return'): void;
+  (event: 'reject'): void;
 }>();
 
 const severityLabelMap: Record<string, string> = {
@@ -80,7 +82,7 @@ const handleApprove = () => {
 <style scoped>
 .action-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 24px;
 }

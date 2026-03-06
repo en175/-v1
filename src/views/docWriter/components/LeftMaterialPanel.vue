@@ -1,23 +1,249 @@
 <template>
   <div class="left-panel">
     <div class="panel-header">证据/材料引用</div>
-    <div class="panel-content" style="padding: 0;">
-      <ul class="wb-list">
-        <li v-for="item in materials" :key="item.id" class="wb-list-item">
-          <div style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
-            <span style="font-size: 16px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-            </span>
-            {{ item.title }}
+    <div class="panel-content evidence-panel">
+      <div class="summary-row">
+        <span class="summary-chip">材料 {{ materials.length }} 份</span>
+        <span class="summary-chip warning">高风险 {{ highRiskCount }} 项</span>
+        <span class="summary-chip">待完善 {{ warningCount }} 项</span>
+      </div>
+
+      <ul class="wb-list material-list">
+        <li
+          v-for="item in materials"
+          :key="item.id"
+          class="wb-list-item material-item"
+          :class="{ active: item.id === selectedMaterialId }"
+          @click="selectedMaterialId = item.id"
+        >
+          <div class="material-head">
+            <div class="material-title">{{ item.title }}</div>
+            <span class="material-date">{{ item.submittedAt }}</span>
           </div>
+          <div class="material-meta">{{ item.source }} · 证据片段 {{ item.evidenceItems.length }} 条</div>
         </li>
       </ul>
+
+      <div v-if="activeMaterial" class="active-box">
+        <div class="active-title">当前材料：{{ activeMaterial.title }}</div>
+        <div
+          v-for="row in activeMaterial.evidenceItems"
+          :key="row.id"
+          class="evidence-card"
+          :class="riskClass(row.conflictLevel)"
+        >
+          <div class="evidence-head">
+            <span class="evidence-claim">{{ row.claim }}</span>
+            <span class="evidence-tag" :class="riskClass(row.conflictLevel)">{{ riskText(row.conflictLevel) }}</span>
+          </div>
+          <div class="evidence-excerpt">{{ row.excerpt }}</div>
+          <div v-if="row.conflictNote" class="evidence-note">冲突提示：{{ row.conflictNote }}</div>
+          <div class="action-row">
+            <button class="wb-btn wb-btn-primary" @click.stop="emit('quote-evidence', { material: activeMaterial, evidence: row })">
+              引用到文书
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
-<script setup>
-defineProps({
-  materials: Array
-});
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+
+interface EvidenceItem {
+  id: string;
+  claim: string;
+  excerpt: string;
+  compliance: 'ok' | 'warning';
+  conflictLevel: 'none' | 'medium' | 'high';
+  conflictNote: string;
+}
+
+interface MaterialItem {
+  id: string;
+  title: string;
+  type: string;
+  source: string;
+  submittedAt: string;
+  evidenceItems: EvidenceItem[];
+}
+
+const props = defineProps<{
+  materials: MaterialItem[];
+}>();
+
+const emit = defineEmits<{
+  (
+    event: 'quote-evidence',
+    payload: { material: MaterialItem; evidence: EvidenceItem }
+  ): void;
+}>();
+
+const selectedMaterialId = ref(props.materials[0]?.id || '');
+
+const activeMaterial = computed(
+  () => props.materials.find((item) => item.id === selectedMaterialId.value) || props.materials[0]
+);
+
+const highRiskCount = computed(() =>
+  props.materials.reduce(
+    (sum, item) => sum + item.evidenceItems.filter((row) => row.conflictLevel === 'high').length,
+    0
+  )
+);
+
+const warningCount = computed(() =>
+  props.materials.reduce(
+    (sum, item) => sum + item.evidenceItems.filter((row) => row.compliance === 'warning').length,
+    0
+  )
+);
+
+const riskClass = (value: EvidenceItem['conflictLevel']) => {
+  if (value === 'high') {
+    return 'danger';
+  }
+  if (value === 'medium') {
+    return 'warning';
+  }
+  return 'safe';
+};
+
+const riskText = (value: EvidenceItem['conflictLevel']) => {
+  if (value === 'high') {
+    return '高风险';
+  }
+  if (value === 'medium') {
+    return '需复核';
+  }
+  return '通过';
+};
 </script>
+
+<style scoped>
+.evidence-panel {
+  padding: 12px;
+}
+.summary-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.summary-chip {
+  border: 1px solid #dbe3f7;
+  background: #f8fbff;
+  color: #345;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+}
+.summary-chip.warning {
+  border-color: #ffd4d4;
+  background: #fff4f4;
+  color: #c24141;
+}
+.material-list {
+  border: 1px solid var(--color-divider);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.material-item {
+  cursor: pointer;
+}
+.material-item.active {
+  background: #f3f7ff;
+}
+.material-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.material-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+.material-date {
+  font-size: 12px;
+  color: var(--color-text-sub);
+}
+.material-meta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--color-text-sub);
+}
+.active-box {
+  margin-top: 12px;
+}
+.active-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.evidence-card {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+.evidence-card.warning {
+  border-color: #f8d8a9;
+}
+.evidence-card.danger {
+  border-color: #f6b5b5;
+}
+.evidence-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.evidence-claim {
+  font-size: 13px;
+  font-weight: 600;
+}
+.evidence-tag {
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  border: 1px solid transparent;
+}
+.evidence-tag.safe {
+  color: #0f766e;
+  background: #ecfeff;
+  border-color: #a5f3fc;
+}
+.evidence-tag.warning {
+  color: #b45309;
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+.evidence-tag.danger {
+  color: #b91c1c;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+.evidence-excerpt {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.evidence-note {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #b45309;
+}
+.action-row {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+.action-row .wb-btn {
+  padding-left: 0;
+  padding-right: 0;
+}
+</style>

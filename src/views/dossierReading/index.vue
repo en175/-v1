@@ -30,8 +30,6 @@
         :caseInfo="caseInfo"
         :currentFocus="currentFocus"
         :originalAnchors="originalAnchors"
-        :selectedAnchorId="selectedAnchorId"
-        @locate-anchor="handleLocateAnchor"
       />
       <RightAssistPanel
         :alerts="riskAlerts"
@@ -74,16 +72,11 @@ const decisionMetrics = reactive(mockDecisionMetrics);
 
 const selectedFocusId = ref(focusNodes[0]?.id || '');
 const selectedMaterialId = ref(materials[0]?.id || '');
-const selectedAnchorId = ref('');
 
 const currentFocus = computed<FocusWorkbench>(() => {
   const target = workbench.find((item) => item.id === selectedFocusId.value);
   return target || workbench[0]!;
 });
-
-const handleLocateAnchor = (anchorId: string) => {
-  selectedAnchorId.value = anchorId;
-};
 
 const updateConclusionStatus = (id: string, status: 'pending' | 'accepted' | 'rejected') => {
   const item = conclusionDrafts.find((row) => row.id === id);

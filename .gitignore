@@ -12,6 +12,8 @@ dist
 dist-ssr
 *.local
 
+netlify-drop.zip
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

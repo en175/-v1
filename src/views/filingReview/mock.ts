@@ -187,29 +187,29 @@ export const mockEvidenceAnchors: Record<string, EvidenceAnchor> = {
 export const mockRuleChecks: RuleCheckItem[] = [
   {
     id: 'r1',
-    title: '金额口径一致性校验',
+    title: '诉请本金与分项金额校验',
     level: 'high',
     result: 'hit',
-    formula: '申请书金额(1,200,000) - 证据汇总金额(1,180,000) = 20,000',
-    conclusion: '金额差异 20,000 元，超过容差阈值 1,000 元，触发高风险。',
+    formula: '诉请本金(1,260,000) - 明细汇总(1,248,000) = 12,000',
+    conclusion: '差异 12,000 元，超过金额容差阈值 5,000 元，需补充分项计算说明。',
     relatedFields: ['amount']
   },
   {
     id: 'r2',
-    title: '利息起算日逻辑校验',
+    title: '申请日期与合同签署日期先后校验',
     level: 'medium',
     result: 'hit',
-    formula: '利息起算日(2024/01/11) > 首次违约日(2024/01/10)',
-    conclusion: '时间顺序满足“起算日晚于违约日”，但需补充违约起算依据材料。',
-    relatedFields: ['interestStartDate', 'defaultDate']
+    formula: '申请日期(2024/01/15) < 合同签署日期(2024/01/20)',
+    conclusion: '时间顺序异常，申请日期早于合同签署日期，建议复核合同日期或申请日期录入。',
+    relatedFields: ['claimDate', 'signDate']
   },
   {
     id: 'r3',
-    title: '统一社会信用代码校验',
-    level: 'high',
-    result: 'hit',
-    formula: '18位代码校验位计算结果 ≠ 当前录入末位',
-    conclusion: '被申请人代码疑似录入错误，建议按最新工商信息回填。',
-    relatedFields: ['respondentCreditCode']
+    title: '违约日与利息起算日间隔校验',
+    level: 'medium',
+    result: 'no_hit',
+    formula: '利息起算日(2024/01/15) - 首次违约日(2024/01/10) = 5天',
+    conclusion: '间隔天数处于规则阈值（0-7天）内，本条未触发风险。',
+    relatedFields: ['defaultDate', 'interestStartDate']
   }
 ];

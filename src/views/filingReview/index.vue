@@ -9,7 +9,12 @@
       :evidenceMap="evidenceAnchors"
       :ruleChecks="ruleChecks"
     />
-    <RightIssuesPanel :issueGroups="issueGroups" @locate-field="handleLocateField" @return="showReturnDialog = true" />
+    <RightIssuesPanel
+      :issueGroups="issueGroups"
+      @locate-field="handleLocateField"
+      @return="showReturnDialog = true"
+      @reject="handleReject"
+    />
     
     <ReturnCorrectionDialog 
       v-model:visible="showReturnDialog" 
@@ -53,6 +58,10 @@ const handleReturnSubmit = (comment) => {
   alert('已退回补正');
   showReturnDialog.value = false;
 };
+
+const handleReject = () => {
+  alert('驳回操作已提交');
+};
 </script>
 
 <style scoped>
@@ -70,14 +79,5 @@ const handleReturnSubmit = (comment) => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-}
-
-.filing-review-page :deep(.module-title::before) {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: #bfdbfe;
-  box-shadow: 0 0 0 4px rgba(191, 219, 254, 0.2);
 }
 </style>

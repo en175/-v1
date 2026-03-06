@@ -1,6 +1,9 @@
 <template>
   <div class="three-column-layout" @click="handleGlobalClick">
-    <LeftMaterialPanel :materials="materials" />
+    <LeftMaterialPanel
+      :materials="materials"
+      @quote-evidence="handleQuoteEvidence"
+    />
     <EditorArea 
       ref="editorRef"
       v-model="content" 
@@ -8,9 +11,12 @@
     />
     <RightPanel
       :aiMsgs="aiMsgs"
+      :aiPresetActions="aiPresetActions"
+      :aiPresetOptions="aiPresetOptions"
       :checkGroups="checkGroups"
       :comments="comments"
       @locate-paragraph="handleLocateParagraph"
+      @ai-preset-select="handleAiPresetSelect"
     />
 
     <!-- AI 交互组件 -->
@@ -48,10 +54,22 @@ import FloatingSelectionToolbar from './components/FloatingSelectionToolbar.vue'
 import AiWritePopover from './components/AiWritePopover.vue';
 import CandidateResultCard from './components/CandidateResultCard.vue';
 
-import { getMockCandidate, mockAiMsgs, mockCheckGroups, mockComments, mockEditorContent, mockMaterials } from './mock';
+import {
+  getMockCandidate,
+  getPresetReply,
+  mockAiMsgs,
+  mockAiPresetActions,
+  mockAiPresetOptions,
+  mockCheckGroups,
+  mockComments,
+  mockEditorContent,
+  mockMaterials
+} from './mock';
 
 const materials = mockMaterials;
-const aiMsgs = mockAiMsgs;
+const aiMsgs = ref([...mockAiMsgs]);
+const aiPresetActions = mockAiPresetActions;
+const aiPresetOptions = mockAiPresetOptions;
 const checkGroups = mockCheckGroups;
 const comments = mockComments;
 
@@ -252,6 +270,29 @@ const generateCandidate = (type, prompt) => {
     resultPosition.value = { ...toolbarPosition.value, top: toolbarPosition.value.top + 20 };
     resultVisible.value = true;
   }, 500);
+};
+
+const buildEvidenceFootnote = (material, evidence) => {
+  return `（证据：${material.title}；主张：${evidence.claim}；摘录：${evidence.excerpt}）`;
+};
+
+const handleQuoteEvidence = ({ material, evidence }) => {
+  if (evidence.conflictLevel === 'high') {
+    alert(`当前证据存在高风险冲突：${evidence.conflictNote}，请先完成冲突处理后再入稿。`);
+    return;
+  }
+  if (!editorRef.value) {
+    return;
+  }
+  const quote = `${evidence.excerpt}${buildEvidenceFootnote(material, evidence)}`;
+  editorRef.value.replaceSelectionText(quote);
+};
+
+const handleAiPresetSelect = ({ actionKey, optionKey, actionLabel, optionLabel }) => {
+  const prompt = `预选任务：${actionLabel} / ${optionLabel}`;
+  aiMsgs.value.push({ id: `u-${Date.now()}`, role: 'user', content: prompt });
+  const reply = getPresetReply(actionKey, optionKey);
+  aiMsgs.value.push({ id: `a-${Date.now()}`, role: 'ai', content: reply });
 };
 
 const handleLocateParagraph = (paragraphId) => {

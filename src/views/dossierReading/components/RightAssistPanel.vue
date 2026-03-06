@@ -14,7 +14,7 @@
       </div>
 
       <div class="wb-card section-card">
-        <h3 class="text-title section-title">裁决要点摘要</h3>
+        <h3 class="text-title section-title">AI分析要点摘要</h3>
         <div v-for="item in conclusions" :key="item.id" class="conclusion-item">
           <div class="conclusion-head">
             <span class="conclusion-title">{{ item.title }}</span>

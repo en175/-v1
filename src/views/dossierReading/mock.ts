@@ -36,12 +36,6 @@ export const mockCaseInfo: CaseInfo = {
 
 export const mockDecisionMetrics: DecisionMetric[] = [
   {
-    id: 'metric_1',
-    label: '争点覆盖率',
-    value: '83%',
-    level: 'good'
-  },
-  {
     id: 'metric_2',
     label: '冲突证据',
     value: '4 条',

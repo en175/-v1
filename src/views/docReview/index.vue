@@ -1,8 +1,21 @@
 <template>
   <div class="three-column-layout">
-    <LeftCasePanel :summary="summary" :materials="materials" />
+    <LeftCasePanel
+      :summary="summary"
+      :materials="materials"
+      :hearingRecords="hearingRecords"
+      :reviewModules="reviewModules"
+      :activeModuleKey="activeModuleKey"
+      @select-module="handleSelectModule"
+    />
     <DocEditor ref="editorRef" v-model="content" />
-    <RightAiAnalysis :results="analysisResults" @locate="handleLocate" />
+    <RightAiAnalysis
+      :results="analysisResults"
+      :activeModuleKey="activeModuleKey"
+      :moduleInsights="moduleInsights"
+      :usefulTools="usefulTools"
+      @locate="handleLocate"
+    />
   </div>
 </template>
 
@@ -12,11 +25,24 @@ import LeftCasePanel from './components/LeftCasePanel.vue';
 import DocEditor from './components/DocEditor.vue';
 import RightAiAnalysis from './components/RightAiAnalysis.vue';
 
-import { mockCaseSummary, mockMaterials, mockAnalysisResults } from './mock';
+import {
+  mockCaseSummary,
+  mockMaterials,
+  mockAnalysisResults,
+  mockHearingRecords,
+  mockReviewModules,
+  mockModuleInsights,
+  mockReviewUsefulTools
+} from './mock';
 
 const summary = mockCaseSummary;
 const materials = mockMaterials;
+const hearingRecords = mockHearingRecords;
+const reviewModules = mockReviewModules;
+const moduleInsights = mockModuleInsights;
+const usefulTools = mockReviewUsefulTools;
 const analysisResults = mockAnalysisResults;
+const activeModuleKey = ref(reviewModules[0]?.key || 'coreClaim');
 
 const editorRef = ref(null);
 const content = ref(`
@@ -29,11 +55,13 @@ const content = ref(`
 `);
 
 const handleLocate = (key) => {
-  // key 对应 mockAnalysisResults 中的 metric，如 'logic', 'fact'
-  // 我们假设段落ID与这些key有对应关系，或者通过映射
-  // 简单起见，mock数据里的段落ID直接使用了这些key
   if (editorRef.value) {
     editorRef.value.scrollToParagraph(key);
   }
+};
+
+const handleSelectModule = (module) => {
+  activeModuleKey.value = module.key;
+  handleLocate(module.paragraphId);
 };
 </script>

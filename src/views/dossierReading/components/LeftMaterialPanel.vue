@@ -1,8 +1,8 @@
 <template>
   <div class="left-panel">
-    <div class="panel-header">争点导航与卷宗</div>
+    <div class="panel-header">请求事项与卷宗</div>
     <div class="panel-content">
-      <div class="section-title">争点树</div>
+      <div class="section-title">请求事项</div>
       <div class="focus-list">
         <button
           v-for="focus in focusNodes"

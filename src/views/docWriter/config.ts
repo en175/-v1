@@ -1,20 +1,143 @@
 export const WRITER_TABS = [
-  { key: 'ai', label: 'AI 对话' },
+  { key: 'ai', label: '智能写作助手' },
   { key: 'check', label: '校对检查' },
   { key: 'comment', label: '人工批注' }
 ];
 
 export const MOCK_MATERIALS = [
-  { id: 'w1', title: '仲裁申请书', type: 'doc' },
-  { id: 'w2', title: '被申请人答辩书', type: 'doc' },
-  { id: 'w3', title: '庭审笔录', type: 'doc' },
+  {
+    id: 'w1',
+    title: '仲裁申请书',
+    type: 'doc',
+    source: '申请人提交',
+    submittedAt: '2024-01-15',
+    evidenceItems: [
+      {
+        id: 'w1-e1',
+        claim: '货款支付请求',
+        excerpt: '申请人主张：被申请人应支付货款 1,260,000 元及逾期利息。',
+        compliance: 'ok',
+        conflictLevel: 'none',
+        conflictNote: ''
+      },
+      {
+        id: 'w1-e2',
+        claim: '利息起算日主张',
+        excerpt: '申请人主张利息自 2024-01-15 起计算。',
+        compliance: 'warning',
+        conflictLevel: 'high',
+        conflictNote: '与合同签署日期存在时间线倒置风险。'
+      }
+    ]
+  },
+  {
+    id: 'w2',
+    title: '被申请人答辩书',
+    type: 'doc',
+    source: '被申请人提交',
+    submittedAt: '2024-02-02',
+    evidenceItems: [
+      {
+        id: 'w2-e1',
+        claim: '质量抗辩主张',
+        excerpt: '被申请人称到货后发现 20% 型号不符，已在 3 日内通知申请人。',
+        compliance: 'ok',
+        conflictLevel: 'medium',
+        conflictNote: '与签收回执数量一致性说明不足。'
+      },
+      {
+        id: 'w2-e2',
+        claim: '违约金调减主张',
+        excerpt: '被申请人请求将违约金从合同约定比例调减至合理范围。',
+        compliance: 'ok',
+        conflictLevel: 'none',
+        conflictNote: ''
+      }
+    ]
+  },
+  {
+    id: 'w3',
+    title: '庭审笔录',
+    type: 'doc',
+    source: '仲裁庭记录',
+    submittedAt: '2024-03-01',
+    evidenceItems: [
+      {
+        id: 'w3-e1',
+        claim: '对账事实确认',
+        excerpt: '庭审中双方确认 2024-01-05 邮件曾就应付款余额进行对账。',
+        compliance: 'ok',
+        conflictLevel: 'none',
+        conflictNote: ''
+      },
+      {
+        id: 'w3-e2',
+        claim: '主体身份陈述',
+        excerpt: '被申请人庭审陈述主体名称与答辩书落款主体存在细微差异。',
+        compliance: 'warning',
+        conflictLevel: 'high',
+        conflictNote: '主体信息不一致，属于高风险必处理项。'
+      }
+    ]
+  }
 ];
 
 export const MOCK_AI_MSGS = [
-  { id: 'm1', role: 'ai', content: '您好，我是文书写作助手。请问需要生成哪部分的段落？' },
-  { id: 'm2', role: 'user', content: '帮我生成一段关于“管辖权异议”的裁决分析' },
-  { id: 'm3', role: 'ai', content: '好的，根据案情，被申请人提出的管辖权异议不成立。理由如下：双方签订的《购销合同》第 12 条明确约定了仲裁条款...' }
+  { id: 'm1', role: 'ai', content: '您好，我是文书写作助手。请选择下方任务卡和预选项，我将按仲裁委文书规范生成建议。' }
 ];
+
+export const AI_PRESET_ACTIONS = [
+  { key: 'focus', label: '生成争议焦点', desc: '围绕请求事项提炼争议焦点与审查路径' },
+  { key: 'quote', label: '生成证据引用段落', desc: '按主张输出事实+证据悬浮脚注' },
+  { key: 'conflict', label: '检测证据冲突', desc: '扫描金额、时间线、主体信息冲突' },
+  { key: 'reason', label: '生成裁决理由', desc: '形成“事实-规则-结论”说理段落' }
+];
+
+export const AI_PRESET_OPTIONS = {
+  focus: [
+    { key: 'pay', label: '货款支付义务' },
+    { key: 'interest', label: '利息起算节点' },
+    { key: 'penalty', label: '违约金调减标准' }
+  ],
+  quote: [
+    { key: 'pay', label: '货款支付请求' },
+    { key: 'quality', label: '质量抗辩' },
+    { key: 'penalty', label: '违约金争议' }
+  ],
+  conflict: [
+    { key: 'amount', label: '金额一致性冲突' },
+    { key: 'timeline', label: '时间线倒置冲突' },
+    { key: 'subject', label: '主体信息冲突' }
+  ],
+  reason: [
+    { key: 'support', label: '支持全部请求' },
+    { key: 'partial', label: '部分支持请求' },
+    { key: 'reject', label: '驳回请求' }
+  ]
+};
+
+export const AI_PRESET_RESPONSES = {
+  focus: {
+    pay: '争议焦点建议：1）申请人是否已完成合同项下供货义务；2）被申请人拒付是否具备合同或法定依据；3）逾期付款责任承担范围如何确定。',
+    interest: '争议焦点建议：1）利息起算日应以约定付款期限届满日还是催告日计算；2）申请日期与合同日期矛盾是否影响起算逻辑；3）利息计算区间是否与证据一致。',
+    penalty: '争议焦点建议：1）违约金条款效力是否成立；2）约定比例是否明显高于实际损失；3）是否需要基于行业利润率与损失证据进行调减。'
+  },
+  quote: {
+    pay: '证据引用段落：申请人提交《购销合同》与《发货签收回执》能够相互印证其已完成交付义务，且《对账邮件》进一步确认应付货款余额。故对货款支付请求具备事实基础。',
+    quality: '证据引用段落：被申请人以《质量异议说明》主张型号不符，但其提交时间与签收后异议期限是否一致仍需复核。现有材料尚不足以完全否定申请人履约事实。',
+    penalty: '证据引用段落：合同违约条款明确约定违约金计算方式，同时被申请人提交调减意见及行业利润率材料。建议在确认实际损失后，对违约金幅度作比例审查。'
+  },
+  conflict: {
+    amount: '冲突检测结果：高风险。诉请本金与分项汇总存在 12,000 元差异，建议先补齐计算明细，否则阻断对应段落入稿。',
+    timeline: '冲突检测结果：高风险。申请日期早于合同签署日期，时间线倒置，建议先复核日期字段并保留校验记录。',
+    subject: '冲突检测结果：高风险。庭审陈述主体与答辩书落款主体不一致，需先完成主体信息统一后再采纳该证据结论。'
+  },
+  reason: {
+    support: '裁决理由建议：在申请人履约事实充分、被申请人抗辩证据不足的前提下，依据合同约定及民法典相关条款，对申请人请求予以支持。',
+    partial: '裁决理由建议：对货款本金请求予以支持；对利息及违约金部分，结合起算依据和损失证明程度，酌情部分支持。',
+    reject: '裁决理由建议：申请人关键证据在金额与主体信息上存在未消除冲突，尚不足以达到高度盖然性标准，故对相应请求不予支持。'
+  }
+};
 
 export const MOCK_EDITOR_CONTENT = `
   <h1 style="text-align: center">裁决书</h1>

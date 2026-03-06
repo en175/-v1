@@ -1,7 +1,7 @@
 <template>
   <div class="middle-panel">
     <div class="panel-header">
-      <span>证据工作台</span>
+      <span>证据研判台</span>
       <span class="wb-badge wb-badge-info">{{ currentFocus.request }}</span>
     </div>
     <div class="panel-content">
@@ -37,7 +37,7 @@
           v-for="ev in currentFocus.evidenceSnippets"
           :key="ev.id"
           class="evidence-row"
-          :class="{ active: selectedAnchorId === ev.anchorId }"
+          :class="{ active: selectedEvidenceId === ev.id }"
         >
           <div class="evidence-head">
             <div>
@@ -50,7 +50,7 @@
             </div>
           </div>
           <div class="evidence-content">{{ ev.content }}</div>
-          <button type="button" class="wb-btn locate-btn" @click="$emit('locate-anchor', ev.anchorId)">
+          <button type="button" class="wb-btn locate-btn" @click="openTraceDialog(ev.id)">
             回溯原文
           </button>
         </div>
@@ -67,22 +67,38 @@
         </div>
       </div>
 
-      <div class="wb-card section-card">
-        <div class="section-head">
-          <h3 class="text-title section-title">原文锚点区</h3>
+    </div>
+    <div v-if="showTraceDialog" class="dialog-overlay" @click.self="closeTraceDialog">
+      <div class="wb-card trace-dialog">
+        <div class="trace-dialog-header">
+          <h3 class="text-title trace-dialog-title">证据回溯原文</h3>
+          <button type="button" class="wb-btn" @click="closeTraceDialog">关闭</button>
         </div>
-        <div
-          v-for="anchor in originalAnchors"
-          :id="anchor.id"
-          :key="anchor.id"
-          class="anchor-row"
-          :class="{ active: selectedAnchorId === anchor.id }"
-        >
-          <div class="anchor-title">{{ anchor.title }}</div>
-          <div class="anchor-content">{{ anchor.content }}</div>
-          <button type="button" class="wb-btn wb-btn-text" @click="$emit('locate-anchor', anchor.id)">
-            定位到该片段
-          </button>
+        <div class="trace-dialog-sub">
+          当前请求事项：{{ currentFocus.request }}，共 {{ relatedEvidenceList.length }} 条相关证据
+        </div>
+        <div class="trace-list">
+          <div
+            v-for="item in relatedEvidenceList"
+            :key="item.id"
+            class="trace-row"
+            :class="{ active: selectedEvidenceId === item.id }"
+          >
+            <div class="trace-head">
+              <div>
+                <div class="trace-title">{{ item.title }}</div>
+                <div class="trace-meta">{{ item.material }} · {{ item.position }}</div>
+              </div>
+              <div class="evidence-tags">
+                <span class="wb-badge" :class="stanceClass(item.stance)">{{ stanceText(item.stance) }}</span>
+                <span class="wb-badge" :class="confidenceClass(item.confidence)">{{ confidenceText(item.confidence) }}</span>
+              </div>
+            </div>
+            <div class="trace-section-label">证据摘录</div>
+            <div class="trace-content">{{ item.content }}</div>
+            <div class="trace-section-label">证据原文</div>
+            <div class="trace-content raw">{{ item.anchorText }}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -90,18 +106,37 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref, toRefs } from 'vue';
 import type { CaseInfo, FocusWorkbench, OriginalAnchorText } from '../config';
 
-defineProps<{
+const props = defineProps<{
   caseInfo: CaseInfo;
   currentFocus: FocusWorkbench;
   originalAnchors: OriginalAnchorText[];
-  selectedAnchorId: string;
 }>();
+const { caseInfo, currentFocus, originalAnchors } = toRefs(props);
 
-defineEmits<{
-  (e: 'locate-anchor', anchorId: string): void;
-}>();
+const showTraceDialog = ref(false);
+const selectedEvidenceId = ref('');
+
+const relatedEvidenceList = computed(() =>
+  currentFocus.value.evidenceSnippets.map((item) => {
+    const anchor = originalAnchors.value.find((row) => row.id === item.anchorId);
+    return {
+      ...item,
+      anchorText: anchor?.content || '暂无对应原文'
+    };
+  })
+);
+
+const openTraceDialog = (evidenceId: string) => {
+  selectedEvidenceId.value = evidenceId;
+  showTraceDialog.value = true;
+};
+
+const closeTraceDialog = () => {
+  showTraceDialog.value = false;
+};
 
 const stanceClass = (value: 'support' | 'weaken' | 'neutral') => {
   if (value === 'support') {
@@ -262,28 +297,84 @@ const riskText = (value: 'high' | 'medium' | 'low') => {
   font-size: 13px;
   color: var(--color-text-body);
 }
-.anchor-row {
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 8px;
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.35);
 }
-.anchor-row.active {
-  border-color: #8eaef3;
-  background: #f5f8ff;
+.trace-dialog {
+  width: 880px;
+  max-width: calc(100vw - 48px);
+  max-height: calc(100vh - 60px);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.anchor-title {
+.trace-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.trace-dialog-title {
+  margin: 0;
+}
+.trace-dialog-sub {
   font-size: 12px;
   color: var(--color-text-sub);
 }
-.anchor-content {
-  margin: 6px 0 8px;
+.trace-list {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 2px;
+}
+.trace-row {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 12px;
+  background: #fff;
+}
+.trace-row.active {
+  border-color: #8eaef3;
+  box-shadow: 0 0 0 3px rgba(47, 92, 245, 0.08);
+}
+.trace-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.trace-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-title);
+}
+.trace-meta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--color-text-sub);
+}
+.trace-section-label {
+  margin-top: 8px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: var(--color-text-sub);
+}
+.trace-content {
   line-height: 1.6;
   font-size: 13px;
+  color: var(--color-text-body);
 }
-.wb-btn-text {
-  min-height: 30px;
-  padding: 4px 10px;
-  font-size: 12px;
+.trace-content.raw {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px dashed #dbe3f7;
 }
 </style>

@@ -14,6 +14,34 @@
     
     <div class="panel-content">
       <div v-if="currentTab === 'ai'" style="display: flex; flex-direction: column; height: 100%;">
+        <div class="preset-area">
+          <div class="preset-title">快捷任务</div>
+          <div class="preset-grid">
+            <button
+              v-for="item in aiPresetActions"
+              :key="item.key"
+              type="button"
+              class="preset-card"
+              :class="{ active: activePresetKey === item.key }"
+              @click="activePresetKey = item.key"
+            >
+              <div class="preset-label">{{ item.label }}</div>
+              <div class="preset-desc">{{ item.desc }}</div>
+            </button>
+          </div>
+          <div class="option-row">
+            <button
+              v-for="option in currentPresetOptions"
+              :key="option.key"
+              type="button"
+              class="option-chip"
+              @click="emit('ai-preset-select', { actionKey: activePresetKey, optionKey: option.key, actionLabel: activePresetLabel, optionLabel: option.label })"
+            >
+              {{ option.label }}
+            </button>
+          </div>
+          <div class="lock-tip">当前窗口仅支持预选项对话，不支持自由输入。</div>
+        </div>
         <div style="flex: 1; overflow-y: auto; padding-bottom: 12px;">
           <div v-for="msg in aiMsgs" :key="msg.id" style="margin-bottom: 12px; display: flex;" :style="{ justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }">
             <div 
@@ -27,10 +55,6 @@
             </div>
           </div>
         </div>
-        <div style="margin-top: auto; border-top: 1px solid var(--color-divider); padding-top: 12px;">
-          <textarea class="wb-input" rows="3" placeholder="输入指令..."></textarea>
-          <button class="wb-btn wb-btn-primary" style="width: 100%; margin-top: 8px;">发送</button>
-        </div>
       </div>
 
       <div v-if="currentTab === 'check'">
@@ -42,7 +66,7 @@
             class="wb-card check-card"
             @click="emit('locate-paragraph', issue.paragraphId)"
           >
-            <div class="check-type">{{ issue.type }}</div>
+            <div class="check-type">{{ checkTypeText(issue.type) }}</div>
             <div style="font-size: 13px;">{{ issue.desc }}</div>
           </div>
         </div>
@@ -88,18 +112,43 @@ import { COMMENT_FILTERS, WRITER_TABS } from '../config';
 
 const props = defineProps<{
   aiMsgs: Array<{ id: string; role: string; content: string }>;
+  aiPresetActions: Array<{ key: string; label: string; desc: string }>;
+  aiPresetOptions: Record<string, Array<{ key: string; label: string }>>;
   checkGroups: Array<{ id: string; title: string; items: Array<{ id: string; type: string; desc: string; paragraphId: string }> }>;
   comments: Array<{ id: string; title: string; content: string; status: string; type: string; paragraphId: string }>;
 }>();
 
 const emit = defineEmits<{
   (event: 'locate-paragraph', paragraphId: string): void;
+  (
+    event: 'ai-preset-select',
+    payload: { actionKey: string; optionKey: string; actionLabel: string; optionLabel: string }
+  ): void;
 }>();
 
 const currentTab = ref('ai');
 const tabs = WRITER_TABS;
 const commentFilters = COMMENT_FILTERS;
 const commentFilter = ref('all');
+const activePresetKey = ref(props.aiPresetActions[0]?.key || 'focus');
+
+const currentPresetOptions = computed(() => props.aiPresetOptions[activePresetKey.value] || []);
+const activePresetLabel = computed(
+  () => props.aiPresetActions.find((item) => item.key === activePresetKey.value)?.label || '快捷任务'
+);
+
+const checkTypeText = (value: string) => {
+  if (value === 'format') {
+    return '格式';
+  }
+  if (value === 'logic') {
+    return '逻辑';
+  }
+  if (value === 'evidence') {
+    return '证据';
+  }
+  return '审查项';
+};
 
 const filteredComments = computed(() => {
   if (commentFilter.value === 'all') {
@@ -114,6 +163,67 @@ const filteredComments = computed(() => {
   font-size: 12px;
   color: var(--color-text-sub);
   margin-bottom: 8px;
+}
+.preset-area {
+  border: 1px solid var(--color-divider);
+  border-radius: 10px;
+  background: #fff;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.preset-title {
+  font-size: 12px;
+  color: var(--color-text-sub);
+  margin-bottom: 8px;
+}
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.preset-card {
+  text-align: left;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+}
+.preset-card.active {
+  border-color: #b9ccff;
+  background: #f5f8ff;
+}
+.preset-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+.preset-desc {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--color-text-sub);
+}
+.option-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.option-chip {
+  border: 1px solid #d5def8;
+  background: #f8faff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.option-chip:hover {
+  border-color: #b9ccff;
+  background: #eef3ff;
+}
+.lock-tip {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #6b7280;
 }
 .check-card {
   padding: 12px;
