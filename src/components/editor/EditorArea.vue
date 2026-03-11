@@ -76,18 +76,6 @@
         <button class="toolbar-btn" :class="{ 'is-active': editor.isActive('blockquote') }" @click="editor.chain().focus().toggleBlockquote().run()" title="引用">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/></svg>
         </button>
-        <button class="toolbar-btn" @click="editor.chain().focus().setHorizontalRule().run()" title="分割线">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
-      </div>
-
-      <div class="toolbar-divider"></div>
-
-      <!-- Clear -->
-      <div class="toolbar-group">
-        <button class="toolbar-btn" @click="editor.chain().focus().unsetAllMarks().clearNodes().run()" title="清除格式">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
-        </button>
       </div>
     </div>
 
@@ -213,23 +201,21 @@ const setHeading = (event: Event) => {
 const scrollToParagraph = (paragraphId: string) => {
   if (!editor.value) return;
   
-  // Find node with data-paragraph-id
-  // Tiptap doesn't natively support easy querying of DOM nodes by attributes without a custom extension.
-  // However, we can use standard DOM API since Tiptap renders to DOM.
-  const el = document.querySelector(`[data-paragraph-id="${paragraphId}"]`);
+  const el =
+    document.querySelector(`[data-paragraph-id="${paragraphId}"]`) ||
+    document.querySelector(`[data-section-id="${paragraphId}"]`);
   if (el) {
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     highlightParagraph(paragraphId);
   } else {
-    // If we're using IDs from mock data, we might need to manually insert them or 
-    // simply text match if IDs aren't in the HTML.
-    // For this implementation, we assume the HTML content has these IDs or we find by text.
     console.warn(`Paragraph with ID ${paragraphId} not found.`);
   }
 };
 
 const highlightParagraph = (paragraphId: string) => {
-  const el = document.querySelector(`[data-paragraph-id="${paragraphId}"]`);
+  const el =
+    document.querySelector(`[data-paragraph-id="${paragraphId}"]`) ||
+    document.querySelector(`[data-section-id="${paragraphId}"]`);
   if (el) {
     el.classList.add('temp-highlight');
     setTimeout(() => {
@@ -264,6 +250,7 @@ defineExpose({
   height: 100%;
   background: #F2F3F5;
   overflow: hidden;
+  min-height: 0;
 }
 
 .editor-toolbar {
@@ -332,14 +319,13 @@ defineExpose({
   flex: 1;
   overflow-y: auto;
   padding: 24px;
-  display: flex;
-  justify-content: center;
+  display: block;
+  min-height: 0;
 }
 
 /* Override Tiptap default styles within wb-paper */
 :deep(.ProseMirror) {
   outline: none;
-  min-height: 100%;
 }
 
 :deep(.ProseMirror p) {

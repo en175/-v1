@@ -7,10 +7,11 @@
       :fieldMeta="verifyFieldMeta"
       :activeFieldKey="activeFieldKey"
       :evidenceMap="evidenceAnchors"
-      :ruleChecks="ruleChecks"
+      :caseOverview="caseOverview"
     />
     <RightIssuesPanel
       :issueGroups="issueGroups"
+      :decisionSuggestion="decisionSuggestion"
       @locate-field="handleLocateField"
       @return="showReturnDialog = true"
       @reject="handleReject"
@@ -33,14 +34,23 @@ import RightIssuesPanel from './components/RightIssuesPanel.vue';
 import ReturnCorrectionDialog from './components/ReturnCorrectionDialog.vue';
 
 import { VERIFY_FIELDS } from './config';
-import { mockMaterials, mockVerifyData, mockIssueGroups, mockVerifyFieldMeta, mockEvidenceAnchors, mockRuleChecks } from './mock';
+import {
+  mockCaseOverview,
+  mockDecisionSuggestion,
+  mockEvidenceAnchors,
+  mockIssueGroups,
+  mockMaterials,
+  mockVerifyData,
+  mockVerifyFieldMeta
+} from './mock';
 
 const materials = ref(mockMaterials);
 const verifyData = ref(mockVerifyData);
 const verifyFieldMeta = ref(mockVerifyFieldMeta);
 const issueGroups = ref(mockIssueGroups);
 const evidenceAnchors = ref(mockEvidenceAnchors);
-const ruleChecks = ref(mockRuleChecks);
+const caseOverview = ref(mockCaseOverview);
+const decisionSuggestion = ref(mockDecisionSuggestion);
 const verifyFields = VERIFY_FIELDS;
 const activeFieldKey = ref('');
 const showReturnDialog = ref(false);

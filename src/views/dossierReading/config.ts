@@ -1,14 +1,3 @@
-export interface DossierTab {
-  key: string;
-  label: string;
-}
-
-export const TABS: DossierTab[] = [
-  { key: 'overview', label: '案卷整体概览' },
-  { key: 'claims', label: '请求/事实/证据' },
-  { key: 'defense', label: '抗辩对抗视图' }
-];
-
 export interface MaterialItem {
   id: string;
   title: string;
@@ -17,6 +6,9 @@ export interface MaterialItem {
   source: string;
   updatedAt: string;
   reliability: 'high' | 'medium' | 'low';
+  format: string;
+  fileSize: string;
+  previewContent: string;
 }
 
 export interface CaseInfo {
@@ -24,101 +16,93 @@ export interface CaseInfo {
   caseReason: string;
   claimant: string;
   respondent: string;
-  amount: string;
-  status: string;
-  mediator: string;
-  filingDate: string;
-  summary: string;
-  risks: string[];
-  todos: string[];
+  currentDispute: string;
+  currentRequest: string;
 }
 
-export interface DecisionMetric {
-  id: string;
+export interface CaseSummaryItem {
   label: string;
   value: string;
-  level: 'good' | 'warning' | 'danger';
+  span?: 'normal' | 'full';
 }
 
-export interface FocusNode {
-  id: string;
-  title: string;
-  request: string;
-  evidenceCoverage: string;
-  conflictCount: number;
-  status: 'clear' | 'partial' | 'risk';
-}
-
-export interface EvidenceSnippet {
-  id: string;
-  title: string;
-  material: string;
-  position: string;
-  stance: 'support' | 'weaken' | 'neutral';
-  confidence: 'high' | 'medium' | 'low';
-  content: string;
-  anchorId: string;
-}
-
-export interface LawSuggestion {
-  id: string;
-  lawName: string;
-  hitRule: string;
-  applicability: 'high' | 'medium' | 'low';
-}
-
-export interface FocusWorkbench {
-  id: string;
-  title: string;
-  request: string;
-  riskLevel: 'high' | 'medium' | 'low';
-  pendingChecks: string[];
-  evidenceSnippets: EvidenceSnippet[];
-  lawSuggestions: LawSuggestion[];
-  draftConclusion: string;
-}
-
-export interface ConclusionDraft {
-  id: string;
-  title: string;
-  content: string;
-  confidence: 'high' | 'medium' | 'low';
-  references: string[];
-  status: 'pending' | 'accepted' | 'rejected';
-}
-
-export interface RiskAlert {
-  id: string;
-  type: 'procedure' | 'evidence' | 'logic';
-  title: string;
-  suggestion: string;
-}
-
-export interface ClaimRequest {
-  id: string;
-  title: string;
-  elements: Array<{ label: string; content: string }>;
-  facts: string[];
-  evidence: string[];
-}
-
-export interface ClaimFocusGroup {
-  id: string;
-  focus: string;
-  requests: ClaimRequest[];
-}
-
-export interface ViewpointItem {
+export interface DisputeFocusItem {
   id: string;
   text: string;
-  anchorId: string;
+  status: 'neutral' | 'warning' | 'danger';
+  requestId: string;
 }
 
-export interface DefenseFocusGroup {
+export interface TimelineItem {
   id: string;
-  focus: string;
-  applicantViews: ViewpointItem[];
-  respondentViews: ViewpointItem[];
+  date: string;
+  title: string;
+  detail: string;
+  requestIds: string[];
+  targetElementIds: string[];
+  targetFactIds: string[];
+  tags: Array<'evidenceWeak' | 'defenseHit' | 'coreFact'>;
+}
+
+export interface RequestNavItem {
+  id: string;
+  title: string;
+  requestStatement: string;
+  evidenceStrength: 'strong' | 'medium' | 'weak';
+  hasDefense: boolean;
+  elementCount: number;
+  defenseCount: number;
+}
+
+export interface EvidenceItem {
+  id: string;
+  title: string;
+  type: string;
+  source: string;
+  position: string;
+  provingPoint: string;
+  summary: string;
+  anchorId: string;
+  strength: 'strong' | 'medium' | 'weak';
+}
+
+export interface FactItem {
+  id: string;
+  title: string;
+  eventDate: string;
+  content: string;
+  evidenceStrength: 'strong' | 'medium' | 'weak';
+  evidences: EvidenceItem[];
+}
+
+export interface RequestElement {
+  id: string;
+  title: string;
+  description: string;
+  status: 'supported' | 'contested' | 'pending';
+  facts: FactItem[];
+}
+
+export interface DefenseItem {
+  id: string;
+  targetElementId: string;
+  targetLabel: string;
+  type: 'request' | 'fact' | 'evidence';
+  targetName: string;
+  point: string;
+  source: string;
+  hitLevel: 'high' | 'medium' | 'low';
+  content: string;
+  evidenceExcerpt: string;
+}
+
+export interface RequestWorkbench {
+  id: string;
+  title: string;
+  requestStatement: string;
+  reviewHint: string;
+  elements: RequestElement[];
+  defenses: DefenseItem[];
 }
 
 export interface OriginalAnchorText {

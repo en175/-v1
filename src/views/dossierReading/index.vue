@@ -1,159 +1,82 @@
 <template>
   <div class="dossier-page">
-    <div class="wb-card top-dashboard">
-      <div class="top-left">
-        <div class="case-name text-title">{{ caseInfo.caseNo }} · 智能阅卷工作台</div>
-        <div class="case-tags">
-          <span class="wb-chip">{{ caseInfo.caseReason }}</span>
-          <span class="wb-chip">申请人：{{ caseInfo.claimant }}</span>
-          <span class="wb-chip">被申请人：{{ caseInfo.respondent }}</span>
-          <span class="wb-chip">电子卷宗已同步</span>
-        </div>
-      </div>
-      <div class="metrics-row">
-        <div v-for="item in decisionMetrics" :key="item.id" class="metric-item">
-          <div class="metric-label">{{ item.label }}</div>
-          <div class="metric-value" :class="metricClass(item.level)">{{ item.value }}</div>
-        </div>
-      </div>
-    </div>
     <div class="three-column-layout">
       <LeftMaterialPanel
         :materials="materials"
-        :focusNodes="focusNodes"
-        :selectedFocusId="selectedFocusId"
+        :requests="requests"
+        :selectedRequestId="selectedRequestId"
         :selectedMaterialId="selectedMaterialId"
-        @select-focus="selectedFocusId = $event"
+        @select-request="selectedRequestId = $event"
         @select-material="selectedMaterialId = $event"
       />
+
       <MainTabs
-        :caseInfo="caseInfo"
-        :currentFocus="currentFocus"
+        :caseSummary="caseSummary"
+        :timeline="timeline"
+        :currentRequest="currentRequest"
+        :activeTimelineId="activeTimelineId"
         :originalAnchors="originalAnchors"
-      />
-      <RightAssistPanel
-        :alerts="riskAlerts"
-        :conclusions="conclusionDrafts"
-        :traceQueue="traceQueue"
-        @update-status="updateConclusionStatus"
+        @select-timeline="activeTimelineId = $event"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
-import type { FocusWorkbench } from './config';
+import { computed, reactive, ref, watch } from 'vue';
+import type { RequestWorkbench } from './config';
 import LeftMaterialPanel from './components/LeftMaterialPanel.vue';
 import MainTabs from './components/MainTabs.vue';
-import RightAssistPanel from './components/RightAssistPanel.vue';
-
 import {
   mockCaseInfo,
-  mockConclusionDrafts,
-  mockDecisionMetrics,
-  mockFocusNodes,
+  mockCaseSummary,
   mockMaterials,
   mockOriginalAnchors,
-  mockRiskAlerts,
-  mockTraceQueue,
+  mockRequests,
+  mockTimeline,
   mockWorkbench
 } from './mock';
 
 const materials = reactive(mockMaterials);
+const requests = reactive(mockRequests);
 const caseInfo = reactive(mockCaseInfo);
-const focusNodes = reactive(mockFocusNodes);
+const caseSummary = reactive(mockCaseSummary);
+const timeline = reactive(mockTimeline);
 const workbench = reactive(mockWorkbench);
 const originalAnchors = reactive(mockOriginalAnchors);
-const conclusionDrafts = reactive(mockConclusionDrafts);
-const riskAlerts = reactive(mockRiskAlerts);
-const traceQueue = reactive(mockTraceQueue);
-const decisionMetrics = reactive(mockDecisionMetrics);
 
-const selectedFocusId = ref(focusNodes[0]?.id || '');
+const selectedRequestId = ref(requests[0]?.id || '');
 const selectedMaterialId = ref(materials[0]?.id || '');
+const activeTimelineId = ref(
+  timeline.find((item) => item.requestIds.includes(selectedRequestId.value))?.id || timeline[0]?.id || ''
+);
 
-const currentFocus = computed<FocusWorkbench>(() => {
-  const target = workbench.find((item) => item.id === selectedFocusId.value);
+const currentRequest = computed<RequestWorkbench>(() => {
+  const target = workbench.find((item) => item.id === selectedRequestId.value);
   return target || workbench[0]!;
 });
 
-const updateConclusionStatus = (id: string, status: 'pending' | 'accepted' | 'rejected') => {
-  const item = conclusionDrafts.find((row) => row.id === id);
-  if (item) {
-    item.status = status;
+watch(selectedRequestId, (requestId) => {
+  const currentSummary = caseSummary.find((item) => item.label === '当前主审请求');
+  if (currentSummary) {
+    currentSummary.value = requests.find((item) => item.id === requestId)?.requestStatement || currentSummary.value;
   }
-};
-
-const metricClass = (value: string) => {
-  if (value === 'good') {
-    return 'good';
+  caseInfo.currentRequest = currentSummary?.value || caseInfo.currentRequest;
+  const nextTimeline = timeline.find((item) => item.requestIds.includes(requestId));
+  if (nextTimeline) {
+    activeTimelineId.value = nextTimeline.id;
   }
-  if (value === 'warning') {
-    return 'warning';
-  }
-  return 'danger';
-};
+});
 </script>
 
 <style scoped>
 .dossier-page {
-  display: flex;
-  flex-direction: column;
+  height: 100%;
+  background: var(--color-background);
+}
+.three-column-layout {
   height: 100%;
   padding: var(--layout-gap);
   gap: var(--layout-gap);
-  background: var(--color-background);
-}
-.top-dashboard {
-  padding: 14px 16px;
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: flex-start;
-}
-.top-left {
-  min-width: 0;
-}
-.case-name {
-  font-size: 16px;
-}
-.case-tags {
-  margin-top: 8px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.metrics-row {
-  display: flex;
-  gap: 10px;
-}
-.metric-item {
-  min-width: 96px;
-  padding: 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: #fff;
-}
-.metric-label {
-  font-size: 12px;
-  color: var(--color-text-sub);
-}
-.metric-value {
-  margin-top: 4px;
-  font-size: 16px;
-  font-weight: 600;
-}
-.metric-value.good {
-  color: #1f9d66;
-}
-.metric-value.warning {
-  color: #c57b17;
-}
-.metric-value.danger {
-  color: #d94848;
-}
-.three-column-layout {
-  padding: 0;
 }
 </style>

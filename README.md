@@ -159,3 +159,35 @@ src/
 2. 补正意见草稿区升级为更强编辑体验与模板化输出
 3. 文书审核模块补齐 AI 分析维度打分与定位联动闭环
 4. 统一补齐 `.vue` 类型声明与 TS 构建基线
+
+## Vibe Coding 启动建议
+
+如果后续希望每次新项目都能更快进入生产，不要只写一个 `README`，而是固定准备一套“AI 协作启动包”：
+
+- `README.md`：稳定背景，说明项目是什么
+- `PRODUCT_BRIEF.md` 或 `PRD/`：业务目标、用户、范围、成功标准
+- `AI_CONTEXT.md`：专门写给 AI 的协作约束与输出要求
+- `UI_SPEC.md`：固定视觉语言、布局套路、组件原则和状态表达
+- `TASK_BOARD.md`：当前这轮最重要的任务和验收标准
+- `HANDOFF.md`：上一轮改了什么、下一轮从哪接着做
+
+仓库里已补充可复用模板，位置在：
+
+- `templates/vibe-coding/README_TEMPLATE.md`
+- `templates/vibe-coding/PRODUCT_BRIEF_TEMPLATE.md`
+- `templates/vibe-coding/AI_CONTEXT_TEMPLATE.md`
+- `templates/vibe-coding/UI_SPEC_TEMPLATE.md`
+- `templates/vibe-coding/TASK_BOARD_TEMPLATE.md`
+- `templates/vibe-coding/HANDOFF_TEMPLATE.md`
+- `templates/vibe-coding/KICKOFF_PROMPT_TEMPLATE.md`
+
+推荐流程：
+
+1. 先填 `README` 和 `PRODUCT_BRIEF`
+2. 再填 `UI_SPEC`、`AI_CONTEXT` 和 `TASK_BOARD`
+3. 每轮结束更新 `HANDOFF`
+4. 新对话直接把 `KICKOFF_PROMPT_TEMPLATE` 发给 AI，并让它先读上述文件
+
+另外，模板已单独复制到根目录启动包文件夹，便于后续直接复用到新项目：
+
+- `vibe-coding-starter/`

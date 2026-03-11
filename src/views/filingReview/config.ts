@@ -73,8 +73,23 @@ export interface RuleCheckItem {
   id: string;
   title: string;
   level: 'high' | 'medium' | 'low';
-  result: 'hit' | 'pass';
+  result: 'hit' | 'pass' | 'no_hit';
   formula: string;
   conclusion: string;
   relatedFields: string[];
+}
+
+export interface CaseOverviewItem {
+  label: string;
+  value: string;
+  tone?: 'neutral' | 'success' | 'warning' | 'danger';
+  span?: 'normal' | 'full';
+}
+
+export interface DecisionSuggestion {
+  result: string;
+  tone: 'success' | 'warning' | 'danger';
+  summary: string;
+  reasons: string[];
+  nextStep: string;
 }

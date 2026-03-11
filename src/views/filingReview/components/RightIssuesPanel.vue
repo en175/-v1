@@ -8,7 +8,21 @@
         <button class="wb-btn wb-btn-primary" @click="handleApprove">通过立案</button>
         <button class="wb-btn" @click="$emit('return')">退回补正</button>
         <button class="wb-btn" @click="$emit('reject')">驳回</button>
-        <button class="wb-btn">暂存</button>
+      </div>
+
+      <div class="suggestion-card" :class="decisionSuggestion.tone">
+        <div class="suggestion-head">
+          <span class="suggestion-title">建议结论</span>
+          <span class="suggestion-result">{{ decisionSuggestion.result }}</span>
+        </div>
+        <div class="suggestion-summary">{{ decisionSuggestion.summary }}</div>
+        <ul class="suggestion-reasons">
+          <li v-for="reason in decisionSuggestion.reasons" :key="reason">{{ reason }}</li>
+        </ul>
+        <div class="suggestion-next">
+          <span class="suggestion-next-label">建议处理：</span>
+          <span>{{ decisionSuggestion.nextStep }}</span>
+        </div>
       </div>
 
       <div class="issues-header">
@@ -44,10 +58,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { FilingIssueGroup } from '../config';
+import type { DecisionSuggestion, FilingIssueGroup } from '../config';
 
 const props = defineProps<{
   issueGroups: FilingIssueGroup[];
+  decisionSuggestion: DecisionSuggestion;
 }>();
 
 const emit = defineEmits<{
@@ -82,14 +97,78 @@ const handleApprove = () => {
 <style scoped>
 .action-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 14px;
 }
 .action-row .wb-btn {
   white-space: nowrap;
   padding-left: 0;
   padding-right: 0;
+}
+.suggestion-card {
+  margin-bottom: 18px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #ffe1bb;
+  background: #fffaf1;
+}
+.suggestion-card.success {
+  border-color: #c8efd9;
+  background: #f3fbf6;
+}
+.suggestion-card.warning {
+  border-color: #ffe1bb;
+  background: #fffaf1;
+}
+.suggestion-card.danger {
+  border-color: #ffd1d1;
+  background: #fff5f5;
+}
+.suggestion-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.suggestion-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-title);
+}
+.suggestion-result {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: #9a6700;
+  background: #fff1c7;
+}
+.suggestion-card.success .suggestion-result {
+  color: #0f7d4d;
+  background: #ddf6e8;
+}
+.suggestion-card.danger .suggestion-result {
+  color: #b42318;
+  background: #ffe0e0;
+}
+.suggestion-summary,
+.suggestion-next {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-text-body);
+}
+.suggestion-reasons {
+  margin: 8px 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-text-body);
+}
+.suggestion-next-label {
+  font-weight: 700;
+  color: var(--color-text-title);
 }
 .summary-bar {
   display: flex;

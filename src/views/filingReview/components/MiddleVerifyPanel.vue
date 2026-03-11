@@ -1,27 +1,36 @@
 <template>
   <div class="middle-panel">
     <div class="panel-header panel-header-themed">
-      <span class="module-title">信息提取核验</span>
+      <span class="module-title">案件信息核验</span>
     </div>
     <div class="panel-content">
-      <div class="wb-card verify-card">
-        <h3 class="text-title form-title">基础信息核验</h3>
-        <div class="rule-engine-box">
-          <div class="rule-engine-head">
-            <span>金额/日期规则引擎</span>
-            <span class="rule-engine-hit">命中 {{ hitRuleCount }} 条</span>
+      <div class="verify-card">
+        <section class="verify-section">
+          <div class="section-head">
+            <h3 class="section-title-main">案情概览</h3>
           </div>
-          <div class="rule-list">
-            <div v-for="rule in ruleChecks" :key="rule.id" class="rule-item" :class="[rule.level, rule.result]">
-              <div class="rule-title-row">
-                <span class="rule-title">{{ rule.title }}</span>
-                <span class="rule-level">{{ levelTextMap[rule.level] }}</span>
+          <div class="overview-summary">
+            <div class="overview-grid">
+              <div
+                v-for="item in compactOverview"
+                :key="item.label"
+                class="overview-item overview-item-compact"
+              >
+                <div class="overview-label">{{ item.label }}</div>
+                <div class="overview-value">{{ item.value }}</div>
               </div>
-              <div class="rule-formula">{{ rule.formula }}</div>
-              <div class="rule-conclusion">{{ rule.conclusion }}</div>
+            </div>
+            <div
+              v-for="item in detailedOverview"
+              :key="item.label"
+              class="overview-item"
+              :class="[item.tone || 'neutral', { full: item.span === 'full' }]"
+            >
+              <div class="overview-label">{{ item.label }}</div>
+              <div class="overview-value">{{ item.value }}</div>
             </div>
           </div>
-        </div>
+        </section>
 
         <div v-for="section in groupedSections" :key="section.name" class="section-block">
           <div class="section-title">{{ section.name }}</div>
@@ -84,7 +93,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import type { EvidenceAnchor, RuleCheckItem, VerifyFieldDef, VerifyFieldMeta } from '../config';
+import type { CaseOverviewItem, EvidenceAnchor, VerifyFieldDef, VerifyFieldMeta } from '../config';
 
 const props = defineProps<{
   data: Record<string, string>;
@@ -92,18 +101,13 @@ const props = defineProps<{
   fieldMeta: Record<string, VerifyFieldMeta>;
   activeFieldKey: string;
   evidenceMap: Record<string, EvidenceAnchor>;
-  ruleChecks: RuleCheckItem[];
+  caseOverview: CaseOverviewItem[];
 }>();
 
 const statusTextMap: Record<string, string> = {
   match: '通过',
   risk: '关注',
   missing: '缺失'
-};
-const levelTextMap: Record<string, string> = {
-  high: '高风险',
-  medium: '中风险',
-  low: '低风险'
 };
 const activeEvidenceKey = ref('');
 const sourceRefMap = ref<Record<string, HTMLElement | null>>({});
@@ -119,10 +123,9 @@ const groupedSections = computed(() => {
   });
   return Object.keys(bucket).map((name) => ({ name, items: bucket[name] || [] }));
 });
-
+const compactOverview = computed(() => props.caseOverview.filter((item) => item.span !== 'full'));
+const detailedOverview = computed(() => props.caseOverview.filter((item) => item.span === 'full'));
 const getFieldStatus = (fieldKey: string) => props.fieldMeta[fieldKey]?.status || 'risk';
-const hitRuleCount = computed(() => props.ruleChecks.filter((item) => item.result === 'hit').length);
-
 const setSourceRef = (fieldKey: string, el: unknown) => {
   sourceRefMap.value[fieldKey] = (el as HTMLElement | null) || null;
 };
@@ -195,82 +198,79 @@ watch(
 
 <style scoped>
 .verify-card {
-  padding: 24px;
-}
-.form-title {
-  margin-top: 0;
-  margin-bottom: 14px;
-  font-size: 16px;
-}
-.rule-engine-box {
-  margin-bottom: 16px;
-  border: 1px solid #dbeafe;
-  background: #f8fbff;
-  border-radius: 10px;
-  padding: 12px;
-}
-.rule-engine-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #1f3f8f;
-}
-.rule-engine-hit {
-  font-size: 12px;
-  color: #2f5cf5;
-  border: 1px solid #c8d7ff;
-  background: #edf3ff;
-  border-radius: 999px;
-  padding: 1px 8px;
-}
-.rule-list {
   display: grid;
-  gap: 8px;
+  gap: 18px;
 }
-.rule-item {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #fff;
-  padding: 8px 10px;
+.verify-section {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--color-divider);
 }
-.rule-item.high {
-  border-left: 3px solid #ef4444;
+.section-head {
+  margin-bottom: 10px;
 }
-.rule-item.medium {
-  border-left: 3px solid #f59e0b;
-}
-.rule-item.low {
-  border-left: 3px solid #3b82f6;
-}
-.rule-title-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-.rule-title {
-  font-size: 12px;
-  font-weight: 600;
+.section-title-main {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
   color: var(--color-text-title);
 }
-.rule-level {
-  font-size: 11px;
+.overview-summary {
+  border: 1px solid #d9e4f6;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+}
+.overview-item {
+  padding: 10px 12px;
+  background: #fff;
+  border-top: 1px solid #e6edf8;
+}
+.overview-item-compact {
+  min-height: 88px;
+}
+.overview-item-compact:nth-child(odd) {
+  border-right: 1px solid #e6edf8;
+}
+.overview-grid .overview-item-compact:first-child,
+.overview-grid .overview-item-compact:nth-child(2) {
+  border-top: none;
+}
+.overview-grid .overview-item-compact:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  border-right: none;
+}
+.overview-item.full {
+  grid-column: 1 / -1;
+}
+.overview-item.success {
+  border-color: #c8efd9;
+  background: #f3fbf6;
+}
+.overview-item.warning {
+  border-color: #ffe1bb;
+  background: #fffaf1;
+}
+.overview-item.danger {
+  border-color: #ffd1d1;
+  background: #fff5f5;
+}
+.overview-label {
+  font-size: 12px;
   color: var(--color-text-sub);
+  margin-bottom: 6px;
 }
-.rule-formula {
-  font-size: 12px;
-  color: #334155;
-}
-.rule-conclusion {
-  margin-top: 2px;
-  font-size: 12px;
-  color: #475569;
+.overview-value {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-title);
 }
 .section-block {
-  margin-bottom: 18px;
+  margin-bottom: 0;
 }
 .section-title {
   margin-bottom: 10px;

@@ -10,6 +10,7 @@
       @selection-change="handleSelectionChange"
     />
     <RightPanel
+      ref="rightPanelRef"
       :aiMsgs="aiMsgs"
       :aiPresetActions="aiPresetActions"
       :aiPresetOptions="aiPresetOptions"
@@ -17,6 +18,9 @@
       :comments="comments"
       @locate-paragraph="handleLocateParagraph"
       @ai-preset-select="handleAiPresetSelect"
+      @update-comment="handleUpdateComment"
+      @add-comment="handleAddComment"
+      @delete-comment="handleDeleteComment"
     />
 
     <!-- AI 交互组件 -->
@@ -24,6 +28,7 @@
       :visible="toolbarVisible" 
       :position="toolbarPosition"
       @action="handleAiAction"
+      @add-comment="handleToolbarAddComment"
     />
 
     <AiWritePopover 
@@ -71,12 +76,13 @@ const aiMsgs = ref([...mockAiMsgs]);
 const aiPresetActions = mockAiPresetActions;
 const aiPresetOptions = mockAiPresetOptions;
 const checkGroups = mockCheckGroups;
-const comments = mockComments;
+const comments = ref([...mockComments]);
 
 const content = ref(mockEditorContent);
 
 // State
 const editorRef = ref(null);
+const rightPanelRef = ref(null);
 const toolbarVisible = ref(false);
 const toolbarPosition = ref({ top: 0, left: 0 });
 const popoverVisible = ref(false);
@@ -298,6 +304,44 @@ const handleAiPresetSelect = ({ actionKey, optionKey, actionLabel, optionLabel }
 const handleLocateParagraph = (paragraphId) => {
   if (!editorRef.value) return;
   editorRef.value.scrollToParagraph(paragraphId);
+};
+
+const handleUpdateComment = (updated) => {
+  const idx = comments.value.findIndex((c) => c.id === updated.id);
+  if (idx !== -1) {
+    comments.value[idx] = { ...comments.value[idx], ...updated };
+  }
+};
+
+const handleAddComment = (newItem) => {
+  comments.value.unshift(newItem);
+};
+
+const handleDeleteComment = (commentId) => {
+  comments.value = comments.value.filter((c) => c.id !== commentId);
+};
+
+const handleToolbarAddComment = () => {
+  const selection = window.getSelection();
+  const selectedText = selection ? selection.toString().trim() : '';
+  const newId = 'cm-sel-' + Date.now();
+  const newItem = {
+    id: newId,
+    title: selectedText ? (selectedText.length > 20 ? selectedText.slice(0, 20) + '...' : selectedText) : '新批注',
+    content: '',
+    status: 'pending',
+    paragraphId: '',
+    author: '当前用户',
+    createdAt: new Date().toLocaleString('zh-CN'),
+    selectedText: selectedText || ''
+  };
+  comments.value.unshift(newItem);
+  toolbarVisible.value = false;
+  nextTick(() => {
+    if (rightPanelRef.value) {
+      rightPanelRef.value.switchToCommentAndEdit(newId);
+    }
+  });
 };
 
 const handleCopyResult = async () => {

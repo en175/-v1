@@ -2,12 +2,6 @@
   <div class="left-panel">
     <div class="panel-header">证据/材料引用</div>
     <div class="panel-content evidence-panel">
-      <div class="summary-row">
-        <span class="summary-chip">材料 {{ materials.length }} 份</span>
-        <span class="summary-chip warning">高风险 {{ highRiskCount }} 项</span>
-        <span class="summary-chip">待完善 {{ warningCount }} 项</span>
-      </div>
-
       <ul class="wb-list material-list">
         <li
           v-for="item in materials"
@@ -20,7 +14,7 @@
             <div class="material-title">{{ item.title }}</div>
             <span class="material-date">{{ item.submittedAt }}</span>
           </div>
-          <div class="material-meta">{{ item.source }} · 证据片段 {{ item.evidenceItems.length }} 条</div>
+          <div class="material-meta">{{ item.source }}</div>
         </li>
       </ul>
 
@@ -87,20 +81,6 @@ const activeMaterial = computed(
   () => props.materials.find((item) => item.id === selectedMaterialId.value) || props.materials[0]
 );
 
-const highRiskCount = computed(() =>
-  props.materials.reduce(
-    (sum, item) => sum + item.evidenceItems.filter((row) => row.conflictLevel === 'high').length,
-    0
-  )
-);
-
-const warningCount = computed(() =>
-  props.materials.reduce(
-    (sum, item) => sum + item.evidenceItems.filter((row) => row.compliance === 'warning').length,
-    0
-  )
-);
-
 const riskClass = (value: EvidenceItem['conflictLevel']) => {
   if (value === 'high') {
     return 'danger';
@@ -125,25 +105,6 @@ const riskText = (value: EvidenceItem['conflictLevel']) => {
 <style scoped>
 .evidence-panel {
   padding: 12px;
-}
-.summary-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
-}
-.summary-chip {
-  border: 1px solid #dbe3f7;
-  background: #f8fbff;
-  color: #345;
-  border-radius: 999px;
-  padding: 2px 10px;
-  font-size: 12px;
-}
-.summary-chip.warning {
-  border-color: #ffd4d4;
-  background: #fff4f4;
-  color: #c24141;
 }
 .material-list {
   border: 1px solid var(--color-divider);

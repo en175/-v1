@@ -202,12 +202,12 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   max-width: 800px;
   margin: 20px auto;
-  min-height: 1000px;
   padding: 72px 84px;
   box-shadow: var(--shadow-lg);
   position: relative;
   border-radius: 10px;
   border: 1px solid #dce5f2;
+  box-sizing: border-box;
 }
 .wb-surface {
   background: #fff;

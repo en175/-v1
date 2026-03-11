@@ -11,11 +11,13 @@ export const MOCK_MATERIALS = [
     type: 'doc',
     source: '申请人提交',
     submittedAt: '2024-01-15',
+    fileType: 'PDF',
+    fileSize: '2.1 MB',
     evidenceItems: [
       {
         id: 'w1-e1',
         claim: '货款支付请求',
-        excerpt: '申请人主张：被申请人应支付货款 1,260,000 元及逾期利息。',
+        excerpt: '申请人主张被申请人应支付货款人民币 1,180,000 元及逾期利息。',
         compliance: 'ok',
         conflictLevel: 'none',
         conflictNote: ''
@@ -23,10 +25,18 @@ export const MOCK_MATERIALS = [
       {
         id: 'w1-e2',
         claim: '利息起算日主张',
-        excerpt: '申请人主张利息自 2024-01-15 起计算。',
+        excerpt: '申请人主张利息自 2024-01-11 起按全国银行间同业拆借中心公布的贷款市场报价利率计算。',
         compliance: 'warning',
         conflictLevel: 'high',
-        conflictNote: '与合同签署日期存在时间线倒置风险。'
+        conflictNote: '利息起算日早于违约日期 2024-01-10，时间逻辑冲突。'
+      },
+      {
+        id: 'w1-e3',
+        claim: '违约金请求',
+        excerpt: '申请人依据合同第 8 条约定，主张被申请人支付逾期付款违约金人民币 20,000 元。',
+        compliance: 'ok',
+        conflictLevel: 'none',
+        conflictNote: ''
       }
     ]
   },
@@ -36,19 +46,64 @@ export const MOCK_MATERIALS = [
     type: 'doc',
     source: '被申请人提交',
     submittedAt: '2024-02-02',
+    fileType: 'PDF',
+    fileSize: '1.8 MB',
     evidenceItems: [
       {
         id: 'w2-e1',
         claim: '质量抗辩主张',
-        excerpt: '被申请人称到货后发现 20% 型号不符，已在 3 日内通知申请人。',
+        excerpt: '被申请人称到货后发现约 20% 货物型号与合同约定不符，已在 3 日内书面通知申请人。',
         compliance: 'ok',
         conflictLevel: 'medium',
-        conflictNote: '与签收回执数量一致性说明不足。'
+        conflictNote: '与签收回执确认的数量和型号记录存在不一致。'
       },
       {
         id: 'w2-e2',
         claim: '违约金调减主张',
-        excerpt: '被申请人请求将违约金从合同约定比例调减至合理范围。',
+        excerpt: '被申请人认为合同约定违约金过高，请求仲裁庭依据实际损失酌情调减。',
+        compliance: 'ok',
+        conflictLevel: 'none',
+        conflictNote: ''
+      },
+      {
+        id: 'w2-e3',
+        claim: '主体责任抗辩',
+        excerpt: '被申请人称实际签收方为其关联公司，非答辩书落款主体，要求明确责任承担方。',
+        compliance: 'warning',
+        conflictLevel: 'high',
+        conflictNote: '答辩书落款主体与庭审陈述主体存在差异，属高风险项。'
+      }
+    ]
+  },
+  {
+    id: 'w3',
+    title: '购销合同',
+    type: 'contract',
+    source: '双方签署',
+    submittedAt: '2023-12-01',
+    fileType: 'PDF',
+    fileSize: '3.2 MB',
+    evidenceItems: [
+      {
+        id: 'w3-e1',
+        claim: '合同价款约定',
+        excerpt: '合同约定货物总价款人民币 1,200,000 元，付款期为收货验收后 30 日内一次性支付。',
+        compliance: 'ok',
+        conflictLevel: 'none',
+        conflictNote: ''
+      },
+      {
+        id: 'w3-e2',
+        claim: '违约金条款',
+        excerpt: '合同第 8 条约定：逾期付款的，买方应按未付金额每日万分之五向卖方支付违约金。',
+        compliance: 'ok',
+        conflictLevel: 'none',
+        conflictNote: ''
+      },
+      {
+        id: 'w3-e3',
+        claim: '仲裁条款',
+        excerpt: '合同第 12 条约定：因本合同发生争议，双方同意提交北京仲裁委员会仲裁。',
         compliance: 'ok',
         conflictLevel: 'none',
         conflictNote: ''
@@ -56,27 +111,110 @@ export const MOCK_MATERIALS = [
     ]
   },
   {
-    id: 'w3',
-    title: '庭审笔录',
-    type: 'doc',
-    source: '仲裁庭记录',
-    submittedAt: '2024-03-01',
+    id: 'w4',
+    title: '发货单与签收回执',
+    type: 'evidence',
+    source: '申请人提交',
+    submittedAt: '2023-12-08',
+    fileType: 'PDF',
+    fileSize: '1.5 MB',
     evidenceItems: [
       {
-        id: 'w3-e1',
-        claim: '对账事实确认',
-        excerpt: '庭审中双方确认 2024-01-05 邮件曾就应付款余额进行对账。',
+        id: 'w4-e1',
+        claim: '交付事实',
+        excerpt: '发货单载明 2023 年 12 月 8 日发出全部合同货物，签收回执有被申请人签章确认。',
         compliance: 'ok',
         conflictLevel: 'none',
         conflictNote: ''
       },
       {
-        id: 'w3-e2',
+        id: 'w4-e2',
+        claim: '签收数量确认',
+        excerpt: '签收回执载明"货物数量与合同一致，型号待进一步验收"，被申请人经办人签字。',
+        compliance: 'ok',
+        conflictLevel: 'medium',
+        conflictNote: '签收回执注明"型号待验收"，与被申请人质量抗辩存在关联。'
+      }
+    ]
+  },
+  {
+    id: 'w5',
+    title: '银行转账记录',
+    type: 'evidence',
+    source: '申请人提交',
+    submittedAt: '2024-01-08',
+    fileType: 'PDF',
+    fileSize: '680 KB',
+    evidenceItems: [
+      {
+        id: 'w5-e1',
+        claim: '部分付款事实',
+        excerpt: '银行流水显示被申请人于 2024-01-08 支付人民币 20,000 元，备注"货款"。',
+        compliance: 'ok',
+        conflictLevel: 'none',
+        conflictNote: ''
+      }
+    ]
+  },
+  {
+    id: 'w6',
+    title: '催款函及快递签收记录',
+    type: 'evidence',
+    source: '申请人提交',
+    submittedAt: '2024-01-10',
+    fileType: 'PDF',
+    fileSize: '920 KB',
+    evidenceItems: [
+      {
+        id: 'w6-e1',
+        claim: '催告送达',
+        excerpt: '催款函载明要求被申请人于 3 日内支付剩余货款 1,180,000 元，快递单显示已签收。',
+        compliance: 'ok',
+        conflictLevel: 'none',
+        conflictNote: ''
+      },
+      {
+        id: 'w6-e2',
+        claim: '催告时间节点',
+        excerpt: '催款函发出日为 2024-01-10，签收日为 2024-01-11，与利息起算日关联。',
+        compliance: 'warning',
+        conflictLevel: 'medium',
+        conflictNote: '催告送达日期是否可作为利息起算节点，需结合合同约定判断。'
+      }
+    ]
+  },
+  {
+    id: 'w7',
+    title: '庭审笔录（第一次）',
+    type: 'doc',
+    source: '仲裁庭记录',
+    submittedAt: '2024-03-01',
+    fileType: 'PDF',
+    fileSize: '4.2 MB',
+    evidenceItems: [
+      {
+        id: 'w7-e1',
+        claim: '对账事实确认',
+        excerpt: '庭审中双方确认 2024-01-05 邮件曾就应付款余额进行对账，被申请人认可尚欠货款。',
+        compliance: 'ok',
+        conflictLevel: 'none',
+        conflictNote: ''
+      },
+      {
+        id: 'w7-e2',
+        claim: '质量异议庭审陈述',
+        excerpt: '被申请人庭审中称"型号不符仅涉及部分批次，不影响整体使用"，与答辩书立场存在差异。',
+        compliance: 'warning',
+        conflictLevel: 'medium',
+        conflictNote: '被申请人庭审陈述弱化了答辩书中的质量抗辩主张。'
+      },
+      {
+        id: 'w7-e3',
         claim: '主体身份陈述',
-        excerpt: '被申请人庭审陈述主体名称与答辩书落款主体存在细微差异。',
+        excerpt: '被申请人庭审陈述"签收方为上海贸易有限公司"，与答辩书落款主体"上海贸易发展有限公司"存在差异。',
         compliance: 'warning',
         conflictLevel: 'high',
-        conflictNote: '主体信息不一致，属于高风险必处理项。'
+        conflictNote: '主体名称不一致，属于高风险必处理项。'
       }
     ]
   }
@@ -140,37 +278,82 @@ export const AI_PRESET_RESPONSES = {
 };
 
 export const MOCK_EDITOR_CONTENT = `
-  <h1 style="text-align: center">裁决书</h1>
-  <p data-paragraph-id="p1">申请人北京科技有限公司与被申请人上海贸易有限公司买卖合同纠纷一案，本委于2024年1月15日受理后，依法组成仲裁庭并完成证据交换。</p>
-  <p data-paragraph-id="p2">仲裁庭查明：双方于2023年12月1日签订《购销合同》，约定价款120万元、付款期为收货后30日内。</p>
-  <p data-paragraph-id="p3">申请人提交了发货单、签收单和对账邮件，被申请人则主张部分货物型号不符并提出质量异议。</p>
-  <p data-paragraph-id="p4">关于争议焦点一，仲裁庭认为被申请人未能充分举证证明其拒付具有合法基础，逾期付款责任应由其承担。</p>
-  <p data-paragraph-id="p5">关于争议焦点二，仲裁庭将结合违约金条款约定、履约背景和实际损失综合判断是否需要调减。</p>
+  <h1 style="text-align: center">裁 决 书</h1>
+  <p data-paragraph-id="p-caseno" style="text-align: center">（2026）京仲裁字第01876号</p>
+
+  <h2 data-paragraph-id="sec-header">一、首部</h2>
+  <p data-paragraph-id="p-applicant"><strong>申请人：</strong>北京科技有限公司，住所地北京市朝阳区某街道101号。法定代表人王某，执行董事兼总经理。</p>
+  <p data-paragraph-id="p-agent1"><strong>委托代理人：</strong>李某，北京某律师事务所律师。</p>
+  <p data-paragraph-id="p-respondent"><strong>被申请人：</strong>上海贸易有限公司，住所地上海市浦东新区某路200号。法定代表人赵某，总经理。</p>
+
+  <h2 data-paragraph-id="sec-claims">二、仲裁请求</h2>
+  <p data-paragraph-id="p-claim1">申请人向本委提出如下仲裁请求：</p>
+  <p data-paragraph-id="p-claim2">1. 裁决被申请人向申请人支付货款人民币 1,180,000.00 元；</p>
+  <p data-paragraph-id="p-claim3">2. 裁决被申请人向申请人支付逾期付款违约金人民币 20,000.00 元；</p>
+  <p data-paragraph-id="p-claim4">3. 裁决本案仲裁费用由被申请人承担。</p>
+
+  <h2 data-paragraph-id="sec-facts">三、案件事实</h2>
+  <p data-paragraph-id="p-fact1">申请人诉称：2023年12月1日，申请人与被申请人签订《购销合同》（合同编号：BJ2023-1201），约定由申请人向被申请人供应电子元器件一批，合同总价款人民币 1,200,000.00 元，付款期限为被申请人收货验收后30日内一次性支付。</p>
+  <p data-paragraph-id="p-fact2">申请人已于 2023年12月8日 完成全部货物交付，被申请人经办人在签收回执上签字确认，载明"货物数量与合同一致，型号待进一步验收"。</p>
+  <p data-paragraph-id="p-fact3">被申请人于 2024年1月8日 支付货款人民币 20,000.00 元，此后经申请人多次催告，被申请人未再支付剩余货款 1,180,000.00 元。申请人于 2024年1月10日 发出书面催款函，快递签收记录显示被申请人已于次日签收。</p>
+
+  <h2 data-paragraph-id="sec-defense">四、被申请人答辩</h2>
+  <p data-paragraph-id="p-defense1">被申请人辩称：</p>
+  <p data-paragraph-id="p-defense2">1. 到货后发现约 20% 货物型号与合同约定不符，被申请人已在签收后 3 日内书面通知申请人，构成有效质量异议；</p>
+  <p data-paragraph-id="p-defense3">2. 合同约定违约金标准为未付金额每日万分之五，该比例明显过高，请求仲裁庭酌情调减；</p>
+  <p data-paragraph-id="p-defense4">3. 实际签收方为被申请人关联公司，并非答辩书落款主体，请求仲裁庭明确责任承担方。</p>
+
+  <h2 data-paragraph-id="sec-investigation">五、仲裁庭查明</h2>
+  <p data-paragraph-id="p-inv1">经审理查明：</p>
+  <p data-paragraph-id="p-inv2">2023年12月1日，申请人与被申请人签订《购销合同》，约定货物规格、数量、总价款 1,200,000.00 元及付款方式。合同第 8 条约定逾期付款违约金按未付金额每日万分之五计算；合同第 12 条约定因履行争议提交北京仲裁委员会仲裁。</p>
+  <p data-paragraph-id="p-inv3">2023年12月8日，申请人完成全部货物交付，签收回执有被申请人经办人签字并加盖公章。签收回执载明货物数量与合同一致，但注明"型号待进一步验收"。</p>
+  <p data-paragraph-id="p-inv4">2024年1月5日，双方通过电子邮件确认应付货款余额为 1,180,000.00 元。2024年1月8日，被申请人支付 20,000.00 元。此后经催告未再支付。</p>
+  <p data-paragraph-id="p-inv5">庭审中被申请人称"型号不符仅涉及部分批次，不影响整体使用"，该陈述与答辩书中的质量抗辩立场存在明显差异。</p>
+
+  <h2 data-paragraph-id="sec-analysis">六、仲裁庭认为</h2>
+  <p data-paragraph-id="p-focus-title"><strong>争议焦点一：被申请人是否应支付剩余货款</strong></p>
+  <p data-paragraph-id="p-focus1">仲裁庭认为，申请人已提交发货单、签收回执和对账邮件形成完整证据链，足以证明其已按合同约定完成交付义务。被申请人虽提出质量异议，但其庭审陈述已弱化答辩立场，且未提交充分的退换货或减价依据。综合考量，被申请人应支付剩余货款 1,180,000.00 元。</p>
+  <p data-paragraph-id="p-focus-title2"><strong>争议焦点二：违约金是否应予调减</strong></p>
+  <p data-paragraph-id="p-focus2">关于违约金标准，合同约定为未付金额每日万分之五。仲裁庭注意到该比例折合年化约 18.25%，结合当前市场利率水平及申请人实际损失情况，该比例尚在合理范围内。被申请人未能举证证明约定违约金"明显过高"，故仲裁庭对被申请人的调减请求不予支持。</p>
+  <p data-paragraph-id="p-focus-title3"><strong>争议焦点三：责任主体认定</strong></p>
+  <p data-paragraph-id="p-focus3">关于被申请人提出的主体抗辩，仲裁庭认为合同签署方为被申请人，签收回执亦加盖被申请人公章，对账邮件确认方为被申请人经办人。被申请人关于"关联公司签收"的主张缺乏充分证据支持，不足以免除其合同项下的付款义务。</p>
+
+  <h2 data-paragraph-id="sec-ruling">七、裁决主文</h2>
+  <p data-paragraph-id="p-ruling1">综上，仲裁庭裁决如下：</p>
+  <p data-paragraph-id="p-ruling2">一、被申请人上海贸易有限公司于本裁决书送达之日起十五日内，向申请人北京科技有限公司支付货款人民币 1,180,000.00 元；</p>
+  <p data-paragraph-id="p-ruling3">二、被申请人上海贸易有限公司于本裁决书送达之日起十五日内，向申请人北京科技有限公司支付逾期付款违约金人民币 20,000.00 元；</p>
+  <p data-paragraph-id="p-ruling4">三、本案仲裁费用人民币 25,000.00 元，由被申请人承担。</p>
+  <p data-paragraph-id="p-ruling5" style="text-align: right">首席仲裁员：王某某</p>
+  <p data-paragraph-id="p-ruling6" style="text-align: right">仲裁员：李某某　张某某</p>
+  <p data-paragraph-id="p-ruling7" style="text-align: right">二〇二六年三月十日</p>
 `;
 
 export const MOCK_CHECK_GROUPS = [
   {
     id: 'cg1',
-    title: '格式与术语一致性',
+    title: '格式与术语',
     items: [
-      { id: 'c1', type: 'format', desc: '金额“10000元”建议统一为“10,000.00 元”', paragraphId: 'p2' },
-      { id: 'c2', type: 'format', desc: '“本委”与“仲裁庭”混用，建议按段落语境统一称谓', paragraphId: 'p1' }
+      { id: 'c1', type: 'format', desc: '案号格式建议核对是否与仲裁委登记系统一致', paragraphId: 'p-caseno', paragraphLabel: '案号' },
+      { id: 'c2', type: 'format', desc: '裁决主文金额需与事实查明段金额严格一致', paragraphId: 'p-ruling2', paragraphLabel: '裁决主文第一项' },
+      { id: 'c3', type: 'format', desc: '"本委"与"仲裁庭"称谓需全文统一', paragraphId: 'p-claim1', paragraphLabel: '仲裁请求首段' }
     ]
   },
   {
     id: 'cg2',
-    title: '逻辑与论证完整性',
+    title: '逻辑与论证',
     items: [
-      { id: 'c3', type: 'logic', desc: '争议焦点二缺少“违约金是否显失公平”的裁判标准引述', paragraphId: 'p5' },
-      { id: 'c4', type: 'logic', desc: '对被申请人质量抗辩的证据采信理由尚不充分', paragraphId: 'p3' }
+      { id: 'c4', type: 'logic', desc: '争议焦点二应引用《民法典》第585条关于违约金调整的裁判依据', paragraphId: 'p-focus2', paragraphLabel: '争议焦点二' },
+      { id: 'c5', type: 'logic', desc: '被申请人质量抗辩的庭审陈述变化需更充分说理', paragraphId: 'p-inv5', paragraphLabel: '查明·庭审陈述' },
+      { id: 'c6', type: 'logic', desc: '主体认定需引用签收回执和对账邮件具体内容', paragraphId: 'p-focus3', paragraphLabel: '争议焦点三' }
     ]
   },
   {
     id: 'cg3',
-    title: '证据引用准确性',
+    title: '证据引用',
     items: [
-      { id: 'c5', type: 'evidence', desc: '签收单证据编号应与证据目录保持一致（当前引用“证据4”）', paragraphId: 'p3' },
-      { id: 'c6', type: 'evidence', desc: '建议补充对账邮件发送人与收件人的身份说明', paragraphId: 'p2' }
+      { id: 'c7', type: 'evidence', desc: '签收回执"型号待进一步验收"注明应在查明段完整引述', paragraphId: 'p-inv3', paragraphLabel: '查明·签收回执' },
+      { id: 'c8', type: 'evidence', desc: '对账邮件的发送人、收件人岗位信息建议补充', paragraphId: 'p-inv4', paragraphLabel: '查明·对账邮件' },
+      { id: 'c9', type: 'evidence', desc: '催款函签收时间与利息起算关联需在说理段明确', paragraphId: 'p-fact3', paragraphLabel: '事实·催告送达' }
     ]
   }
 ];
@@ -178,16 +361,15 @@ export const MOCK_CHECK_GROUPS = [
 export const COMMENT_FILTERS = [
   { key: 'all', label: '全部' },
   { key: 'pending', label: '待处理' },
-  { key: 'resolved', label: '已处理' },
-  { key: 'logic', label: '逻辑' },
-  { key: 'evidence', label: '证据' }
+  { key: 'resolved', label: '已处理' }
 ];
 
 export const MOCK_COMMENTS = [
-  { id: 'cm1', title: '补充争议焦点二裁判规则', content: '建议补写《民法典》关于违约金调整的裁判依据。', status: 'pending', type: 'logic', paragraphId: 'p5' },
-  { id: 'cm2', title: '核对主体简称', content: '“申请人公司”建议统一为“申请人北京科技有限公司”。', status: 'resolved', type: 'format', paragraphId: 'p1' },
-  { id: 'cm3', title: '证据编号修正', content: '签收单应对应证据4-2，当前正文写成证据4。', status: 'pending', type: 'evidence', paragraphId: 'p3' },
-  { id: 'cm4', title: '补充对账邮件说明', content: '可增加邮件时间、收件人岗位、回复确认信息。', status: 'pending', type: 'evidence', paragraphId: 'p2' }
+  { id: 'cm1', title: '补充违约金裁判依据', content: '争议焦点二应引用《民法典》第五百八十五条第二款关于违约金调整的规定，增强说理充分性。', status: 'pending', paragraphId: 'p-focus2', author: '张仲裁员', createdAt: '2026-03-08 14:30' },
+  { id: 'cm2', title: '统一主体全称', content: '"申请人"首次出现时建议写全称"申请人北京科技有限公司"，此后可简称"申请人"。', status: 'resolved', paragraphId: 'p-applicant', author: '李秘书', createdAt: '2026-03-07 10:15' },
+  { id: 'cm3', title: '签收回执引述不完整', content: '查明段引述签收回执时应包含"型号待进一步验收"这一关键注明，该内容与被申请人质量抗辩直接相关。', status: 'pending', paragraphId: 'p-inv3', author: '张仲裁员', createdAt: '2026-03-08 15:00' },
+  { id: 'cm4', title: '对账邮件细节待补充', content: '对账邮件的发送人岗位、收件人确认回复内容建议在查明段补充，增强证据采信说服力。', status: 'pending', paragraphId: 'p-inv4', author: '王首席', createdAt: '2026-03-09 09:20' },
+  { id: 'cm5', title: '仲裁费用金额核实', content: '仲裁费用25,000元需与立案缴费凭证核对，确认金额准确后再写入裁决主文。', status: 'pending', paragraphId: 'p-ruling4', author: '李秘书', createdAt: '2026-03-09 11:00' }
 ];
 
 export const MOCK_AI_CANDIDATES = {
@@ -198,7 +380,7 @@ export const MOCK_AI_CANDIDATES = {
   translate: 'The arbitral tribunal finds that the claimant has performed the delivery obligations, while the respondent failed to make payment on schedule and therefore breached the contract.',
   summarize: '本案核心结论为：履约事实成立、逾期付款成立、违约责任成立。',
   check: '建议修订：金额格式统一、术语统一、争议焦点二补充法律依据后再提交合议。',
-  custom: '根据您的指令，建议将该段调整为“先述事实，再述规则，最后给出裁判结论”的三段式表述。'
+  custom: '根据您的指令，建议将该段调整为"先述事实，再述规则，最后给出裁判结论"的三段式表述。'
 };
 
 export const AI_ACTIONS = [

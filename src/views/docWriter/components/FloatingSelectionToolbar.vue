@@ -16,6 +16,13 @@
       <span>{{ action.label }}</span>
     </div>
     <div class="divider"></div>
+    <div class="toolbar-item comment-btn" @click="$emit('add-comment')">
+      <span class="icon" style="color: #F59E0B;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </span>
+      <span>批注</span>
+    </div>
+    <div class="divider"></div>
     <div class="toolbar-item more-btn">
       <span class="icon">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
@@ -35,7 +42,7 @@ defineProps({
   }
 });
 
-const emit = defineEmits(['action']);
+const emit = defineEmits(['action', 'add-comment']);
 const actions = AI_ACTIONS;
 
 const handleClick = (action) => {
@@ -79,6 +86,11 @@ const handleClick = (action) => {
 
 .toolbar-item:active {
   transform: translateY(1px);
+}
+
+.comment-btn:hover {
+  background: #FFFBEB;
+  color: #F59E0B;
 }
 
 .icon {

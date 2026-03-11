@@ -1,330 +1,1003 @@
 import type {
   CaseInfo,
-  ConclusionDraft,
-  DecisionMetric,
-  FocusNode,
-  FocusWorkbench,
+  CaseSummaryItem,
+  DisputeFocusItem,
   MaterialItem,
   OriginalAnchorText,
-  RiskAlert
+  RequestNavItem,
+  RequestWorkbench,
+  TimelineItem
 } from './config';
 
 export const mockMaterials: MaterialItem[] = [
-  { id: 'm1', title: '仲裁申请书', type: 'doc', pageCount: 5, source: '申请人', updatedAt: '2024-01-15', reliability: 'high' },
-  { id: 'm2', title: '被申请人答辩书', type: 'doc', pageCount: 3, source: '被申请人', updatedAt: '2024-02-02', reliability: 'high' },
-  { id: 'm3', title: '证据目录（申请人）', type: 'list', pageCount: 1, source: '申请人', updatedAt: '2024-01-15', reliability: 'medium' },
-  { id: 'm4', title: '证据1：购销合同', type: 'evidence', pageCount: 12, source: '双方签署', updatedAt: '2023-12-01', reliability: 'high' },
-  { id: 'm5', title: '证据2：发货单与签收回执', type: 'evidence', pageCount: 6, source: '物流系统', updatedAt: '2023-12-08', reliability: 'high' },
-  { id: 'm6', title: '证据3：银行转账记录', type: 'evidence', pageCount: 2, source: '银行流水', updatedAt: '2024-02-28', reliability: 'medium' },
-  { id: 'm7', title: '证据4：往来邮件与微信记录', type: 'communication', pageCount: 18, source: '双方沟通', updatedAt: '2024-01-20', reliability: 'medium' },
-  { id: 'm8', title: '第一次庭审笔录', type: 'transcript', pageCount: 20, source: '仲裁庭', updatedAt: '2024-03-10', reliability: 'high' }
+  {
+    id: 'm1',
+    title: '仲裁申请书',
+    type: 'doc',
+    pageCount: 9,
+    source: '申请人',
+    updatedAt: '2024-06-18',
+    reliability: 'high',
+    format: 'PDF',
+    fileSize: '2.3 MB',
+    previewContent: `仲裁申请书
+
+申请人：徐微
+被申请人：牡丹江市乐博特科技有限公司
+
+仲裁请求：
+一、请求裁决解除申请人与被申请人之间的教育培训合同；
+二、请求裁决被申请人立即退还申请人剩余18节课程培训费用人民币1474元；
+三、请求裁决本案仲裁费用由被申请人承担。
+
+事实与理由：
+2019年3月28日，申请人与被申请人签订《乐高课程培训协议》，约定由被申请人为申请人之子提供乐高课程培训服务，课程总计48课时，培训费用共计人民币3980元。申请人已于签约当日支付全部培训费用。
+
+协议签订后，被申请人按约在原校区（牡丹江市西安区太平路XX号）提供培训服务。截至2020年8月，申请人之子已完成30节课程，尚余18节课程未实际消化。
+
+2020年8月24日，被申请人工作人员在家长群发布通知，告知校区将搬迁至东七条路文化创意产业园区B栋203室，并定于2020年8月29日在新址恢复授课。
+
+申请人认为：
+1. 新校区距离原校区路程较远，接送不便，严重影响继续履行合同的便利性；
+2. 被申请人单方变更履行地点，构成对合同主要条款的实质性变更；
+3. 上述变更导致合同目的无法实现，申请人有权依法解除合同并要求退还剩余培训费用。
+
+综上，申请人依据《中华人民共和国民法典》相关规定，向贵委提起仲裁，请求支持申请人的全部仲裁请求。
+
+此致
+广州仲裁委员会
+
+申请人：徐微
+2024年6月18日`
+  },
+  {
+    id: 'm2',
+    title: '被申请人答辩书',
+    type: 'doc',
+    pageCount: 6,
+    source: '被申请人',
+    updatedAt: '2024-07-02',
+    reliability: 'high',
+    format: 'PDF',
+    fileSize: '1.8 MB',
+    previewContent: `答辩书
+
+答辩人：牡丹江市乐博特科技有限公司
+
+针对申请人徐微提出的仲裁请求，答辩人答辩如下：
+
+一、关于合同解除请求
+答辩人不同意解除合同，理由如下：
+1. 2020年8月24日搬迁通知仅系授课地点调整，我方已明确8月29日恢复授课，申请人仍可继续接受培训服务，不存在合同目的不能实现情形；
+2. 校区搬迁属于经营场所正常调整，并非根本性违约行为；
+3. 新校区具备完善的教学条件，能够继续提供同等质量的培训服务。
+
+二、关于退费请求
+答辩人不同意退还培训费用，理由如下：
+1. 课程业务已于2020年1月内部转让给刘艾芬老师实际承接，后续课时安排和退费处理均应由实际履行方负责；
+2. 申请人所称剩余18节课程仅系其单方陈述，后台课时明细并未提交，剩余课时数量仍需双方核对确认；
+3. 1474元系申请人单方折算，并无双方确认的剩余课时和统一单价依据，我方财务系统亦未形成对应退费结算。
+
+三、关于解除程序
+申请人仅与张老师个人沟通退费事宜，未向被申请人正式送达解除通知，也未履行合同约定的协商处理程序，解除程序存在瑕疵。
+
+综上所述，请求仲裁庭驳回申请人的全部仲裁请求。
+
+答辩人：牡丹江市乐博特科技有限公司
+2024年7月2日`
+  },
+  {
+    id: 'm3',
+    title: '乐高课程培训协议',
+    type: 'contract',
+    pageCount: 12,
+    source: '双方签署',
+    updatedAt: '2019-03-28',
+    reliability: 'high',
+    format: 'PDF',
+    fileSize: '3.1 MB',
+    previewContent: `乐高课程培训协议
+
+甲方（培训机构）：牡丹江市乐博特科技有限公司
+乙方（学员监护人）：徐微
+学员姓名：徐XX
+
+第一条 培训内容
+甲方为乙方之子提供乐高机器人编程课程培训服务，具体课程内容包括：
+1. 乐高基础搭建课程
+2. 初级编程入门课程
+3. 机器人实践操作课程
+
+第二条 课时与费用
+1. 培训课时：共计48课时，每课时45分钟
+2. 培训费用：人民币3980元整（大写：叁仟玖佰捌拾元整）
+3. 付款方式：签约时一次性支付
+
+第三条 培训地点与时间
+1. 培训地点：牡丹江市西安区太平路XX号
+2. 培训时间：每周六上午9:00-11:00，或根据双方协商另行安排
+
+第四条 双方权利义务
+甲方义务：
+1. 提供符合标准的教学场地和设备
+2. 安排具有资质的教师进行授课
+3. 保障学员在培训期间的人身安全
+
+乙方义务：
+1. 按时支付培训费用
+2. 督促学员按时参加培训
+3. 配合甲方的教学管理
+
+第五条 违约责任
+任何一方违反本协议约定，应承担相应的违约责任。
+
+第六条 争议解决
+因本协议引起的争议，双方应友好协商解决；协商不成的，提交广州仲裁委员会仲裁。
+
+甲方（盖章）：牡丹江市乐博特科技有限公司
+乙方（签字）：徐微
+
+签约日期：2019年3月28日`
+  },
+  {
+    id: 'm4',
+    title: '微信聊天记录及群通知',
+    type: 'communication',
+    pageCount: 18,
+    source: '双方沟通',
+    updatedAt: '2020-08-24',
+    reliability: 'medium',
+    format: 'PDF',
+    fileSize: '5.6 MB',
+    previewContent: `微信聊天记录整理
+
+【群聊：乐博特乐高培训家长群】
+
+2020年8月24日 10:23
+张老师：
+各位家长好，因经营调整，我们的校区将于近日搬迁至新址：东七条路文化创意产业园区B栋203室。新校区环境更好，设施更完善，欢迎大家前来参观。我们计划于8月29日（周六）在新址恢复正常授课，届时请各位家长按时送孩子上课。如有疑问请私信我。
+
+2020年8月24日 11:05
+徐微：
+张老师，新校区距离我家太远了，开车要40多分钟，之前的校区骑电动车10分钟就到。这样接送太不方便了，孩子还剩18节课没上完，能不能退费？
+
+2020年8月24日 11:15
+张老师：
+徐微妈妈，您好！非常理解您的顾虑。关于退费问题需要走公司流程，我先帮您登记，后续会有专人联系您处理。
+
+2020年8月24日 14:30
+徐微：
+张老师，我考虑了一下，新校区确实太远了，接送不现实。我正式提出解除合同，请退还剩余18节课程的费用。按照3980元48课时计算，每课时约83元，18节课应该退1474元。
+
+2020年8月24日 15:20
+张老师：
+收到您的诉求，我已经反馈给公司了。但是公司那边说课程业务已经转让给刘老师了，具体退费问题需要和刘老师协商。
+
+2020年8月24日 16:00
+徐微：
+我签合同是和乐博特公司签的，钱也是交给公司的，内部转让是你们的事，不影响我和公司之间的合同关系。我要求公司直接退费。
+
+2020年8月25日 09:30
+张老师：
+徐微妈妈，公司让我转达：搬迁只是地点调整，课程服务可以继续履行，不构成退费条件。如果您坚持不来上课，那是您单方面放弃，公司不承担退费责任。
+
+2020年8月25日 10:15
+徐微：
+你们单方面搬迁导致我无法继续上课，这是你们违约在先。我保留通过法律途径维权的权利。`
+  },
+  {
+    id: 'm5',
+    title: '付款记录与收据',
+    type: 'evidence',
+    pageCount: 5,
+    source: '申请人',
+    updatedAt: '2019-03-28',
+    reliability: 'high',
+    format: 'PDF',
+    fileSize: '1.2 MB',
+    previewContent: `付款凭证
+
+【银行转账记录】
+转账时间：2019年3月28日 14:32:15
+付款账户：徐微 尾号8856
+收款账户：牡丹江市乐博特科技有限公司
+转账金额：￥3,980.00
+转账备注：乐高培训费
+
+【收款收据】
+                    收  据
+                                    No. 20190328-0156
+
+今收到：徐微
+人民币（大写）：叁仟玖佰捌拾元整
+￥3,980.00
+
+款项用途：乐高机器人编程课程培训费（48课时）
+
+收款单位：牡丹江市乐博特科技有限公司
+收款人：张XX
+日期：2019年3月28日
+
+（收款专用章）
+
+【POS机签购单】
+商户名称：牡丹江市乐博特科技有限公司
+终端号：XXXXXXXX
+日期/时间：2019/03/28 14:32
+卡号：XXXX XXXX XXXX 8856
+金额：RMB 3,980.00
+交易类型：消费
+授权码：XXXXXX
+参考号：XXXXXXXXXXXX
+
+持卡人签名：徐微`
+  },
+  {
+    id: 'm6',
+    title: '校区搬迁通知截图',
+    type: 'evidence',
+    pageCount: 3,
+    source: '被申请人',
+    updatedAt: '2020-08-24',
+    reliability: 'medium',
+    format: 'PNG',
+    fileSize: '856 KB',
+    previewContent: `微信截图内容
+
+【截图1】群聊通知
+━━━━━━━━━━━━━━━━━━━━━
+群名称：乐博特乐高培训家长群
+时间：2020年8月24日 10:23
+
+张老师：
+📢 重要通知
+各位家长好！
+因经营调整，我们的校区将于近日搬迁至新址：
+
+📍 新地址：东七条路文化创意产业园区B栋203室
+📅 复课时间：8月29日（周六）
+⏰ 上课时间：照常
+
+新校区环境更好，设施更完善，欢迎大家前来参观！
+如有疑问请私信我～
+━━━━━━━━━━━━━━━━━━━━━
+
+【截图2】新校区位置地图
+显示新校区位于东七条路文化创意产业园区
+距原校区直线距离约8公里
+导航显示驾车约25-35分钟
+
+【截图3】新校区环境照片
+新教室面积约80平方米
+配备乐高教具、电脑设备、投影仪等
+教学环境整洁明亮`
+  },
+  {
+    id: 'm7',
+    title: '庭审笔录（第一次）',
+    type: 'transcript',
+    pageCount: 22,
+    source: '仲裁庭',
+    updatedAt: '2024-09-08',
+    reliability: 'high',
+    format: 'PDF',
+    fileSize: '4.2 MB',
+    previewContent: `庭审笔录
+
+案号：（2024）穗仲网字第00871号
+案由：教育培训合同纠纷
+开庭时间：2024年9月8日上午9:30
+开庭地点：广州仲裁委员会第三仲裁庭
+仲裁员：王XX（首席）、李XX、张XX
+
+【庭审记录摘要】
+
+一、申请人陈述
+申请人代理人：申请人与被申请人于2019年3月28日签订培训协议，约定48课时培训费3980元。截至2020年8月校区搬迁时，尚余18节课程未完成。被申请人单方将校区搬迁至距原址较远的新地址，导致申请人无法继续履行合同，构成根本违约，申请人有权解除合同并要求退还剩余课程费用1474元。
+
+二、被申请人答辩
+被申请人代理人：
+1. 校区搬迁仅系经营场所调整，并非根本性违约，不构成解除合同的法定事由；
+2. 被申请人于8月29日已在新址恢复授课，具备继续履行条件；
+3. 课程业务已于2020年1月内部转让，退费问题应由实际履行方负责；
+4. 申请人主张的18节剩余课时和1474元退费金额缺乏充分证据。
+
+三、争议焦点
+1. 校区搬迁是否构成根本违约，是否足以支持申请人解除合同？
+2. 剩余课时数量及退费金额如何认定？
+3. 内部业务转让是否影响被申请人的合同责任？
+4. 申请人的解除通知是否送达有效？
+
+四、举证质证
+（详见证据质证笔录）
+
+五、最后陈述
+申请人：坚持全部仲裁请求。
+被申请人：请求驳回申请人全部请求。
+
+六、庭审结束
+仲裁庭宣布休庭，将另行通知裁决结果。
+
+书记员：陈XX
+2024年9月8日`
+  }
 ];
 
 export const mockCaseInfo: CaseInfo = {
-  caseNo: '（2024）京仲案字第01234号',
-  caseReason: '买卖合同纠纷',
-  claimant: '北京科技有限公司',
-  respondent: '上海贸易有限公司',
-  amount: '1,200,000.00 元',
-  status: '组庭审理中',
-  mediator: '张三（首席）、李四、王五',
-  filingDate: '2024-01-15',
-  summary: '申请人主张被申请人未按期支付货款，并要求支付违约金。被申请人抗辩称货物存在质量问题，且已过保修期。',
-  risks: ['被申请人主体资格可能存在存疑（曾变更名称）', '申请人发货节点与签收节点存在 2 日时间差', '违约金计算期间与付款宽限期条款可能冲突'],
-  todos: ['需确认被申请人送达地址与最新年报地址一致', '核对证据 3 原件与扫描件签章一致性', '补充发票开具时间与货款到期时间对应关系']
+  caseNo: '（2024）穗仲网字第00871号',
+  caseReason: '教育培训合同纠纷',
+  claimant: '徐微',
+  respondent: '牡丹江市乐博特科技有限公司',
+  currentDispute: '合同解除是否成立、剩余培训费用是否应退还、解除程序是否适格',
+  currentRequest: '请求1：请求裁决解除申请人与被申请人之间的教育培训合同'
 };
 
-export const mockDecisionMetrics: DecisionMetric[] = [
+export const mockCaseSummary: CaseSummaryItem[] = [
+  { label: '案号', value: '（2024）穗仲网字第00871号' },
+  { label: '案由', value: '教育培训合同纠纷' },
+  { label: '申请人', value: '徐微' },
+  { label: '被申请人', value: '牡丹江市乐博特科技有限公司' },
+  { label: '当前争议焦点', value: '培训机构搬迁后履行地点变化是否构成根本违约，申请人解除合同及退费请求是否成立。', span: 'full' },
+  { label: '当前主审请求', value: '请求1：请求裁决解除申请人与被申请人之间的教育培训合同', span: 'full' }
+];
+
+export const mockDisputeFocuses: DisputeFocusItem[] = [
   {
-    id: 'metric_2',
-    label: '冲突证据',
-    value: '4 条',
-    level: 'warning'
+    id: 'df1',
+    text: '合同关系及培训协议效力是否明确成立',
+    status: 'neutral',
+    requestId: 'req_1'
   },
   {
-    id: 'metric_3',
-    label: '可直接采纳结论',
-    value: '2 / 5',
-    level: 'warning'
+    id: 'df2',
+    text: '校区搬迁及授课安排变化是否足以支持解除合同',
+    status: 'warning',
+    requestId: 'req_1'
   },
   {
-    id: 'metric_4',
-    label: '程序风险',
-    value: '1 项',
-    level: 'danger'
+    id: 'df3',
+    text: '剩余18节课程费用退还基础是否充分',
+    status: 'danger',
+    requestId: 'req_2'
   }
 ];
 
-export const mockFocusNodes: FocusNode[] = [
+export const mockTimeline: TimelineItem[] = [
   {
-    id: 'focus_1',
-    title: '货款支付义务是否成立',
-    request: '请求1：支付货款 1,000,000 元',
-    evidenceCoverage: '高（8/9）',
-    conflictCount: 1,
-    status: 'partial'
+    id: 'tl_1',
+    date: '2019-03-28',
+    title: '签订培训协议并支付培训费',
+    detail: '申请人与被申请人签订《乐高课程培训协议》，约定 48 课时并支付 3980 元培训费。',
+    requestIds: ['req_1', 'req_2'],
+    targetElementIds: ['el_1', 'el_21'],
+    targetFactIds: ['fact_1', 'fact_21'],
+    tags: ['coreFact']
   },
   {
-    id: 'focus_2',
-    title: '逾期利息计算区间是否准确',
-    request: '请求2：支付逾期利息 86,000 元',
-    evidenceCoverage: '中（5/7）',
-    conflictCount: 2,
-    status: 'risk'
+    id: 'tl_2',
+    date: '2019-04-12',
+    title: '申请人确认课程由乐博特签订并履行',
+    detail: '申请人表示其合同系与乐博特签订，款项亦支付给张老师，认为内部转让不影响合同效力。',
+    requestIds: ['req_1', 'req_2'],
+    targetElementIds: ['el_1', 'el_23'],
+    targetFactIds: ['fact_1', 'fact_23'],
+    tags: ['coreFact']
   },
   {
-    id: 'focus_3',
-    title: '违约金约定是否应调减',
-    request: '请求3：支付违约金 200,000 元',
-    evidenceCoverage: '中（6/8）',
-    conflictCount: 1,
-    status: 'partial'
+    id: 'tl_3',
+    date: '2020-08-24',
+    title: '被申请人发布校区搬迁通知',
+    detail: '被申请人工作人员在家长群发布通知，载明校区搬迁至东七条路文化创意产业园区。',
+    requestIds: ['req_1', 'req_2'],
+    targetElementIds: ['el_2'],
+    targetFactIds: ['fact_2'],
+    tags: ['coreFact', 'defenseHit']
+  },
+  {
+    id: 'tl_4',
+    date: '2020-08-24',
+    title: '申请人提出无法继续上课并要求退费',
+    detail: '申请人以搬迁后路程过远、接送不便为由，表示无法继续上课并主张退还剩余18节课程费用。',
+    requestIds: ['req_1', 'req_2'],
+    targetElementIds: ['el_2', 'el_22'],
+    targetFactIds: ['fact_3', 'fact_22'],
+    tags: ['coreFact']
+  },
+  {
+    id: 'tl_5',
+    date: '2020-08-25',
+    title: '被申请人提出内部转让与继续履行抗辩',
+    detail: '被申请人称实际搬迁决定非其作出，并主张仍可继续履行课程服务。',
+    requestIds: ['req_1', 'req_2', 'req_3'],
+    targetElementIds: ['el_3', 'el_23'],
+    targetFactIds: ['fact_4', 'fact_23'],
+    tags: ['defenseHit', 'evidenceWeak']
+  },
+  {
+    id: 'tl_6',
+    date: '2020-08-29',
+    title: '新校区拟恢复授课',
+    detail: '被申请人通知于8月29日在新校区恢复课程，主张具备继续履行条件。',
+    requestIds: ['req_1', 'req_2'],
+    targetElementIds: ['el_2', 'el_3'],
+    targetFactIds: ['fact_2', 'fact_4'],
+    tags: ['defenseHit']
+  },
+  {
+    id: 'tl_7',
+    date: '2024-09-08',
+    title: '庭审中围绕解除与退费责任形成争议',
+    detail: '庭审主要围绕解除事由、退费金额测算和责任主体展开。',
+    requestIds: ['req_1', 'req_2', 'req_3'],
+    targetElementIds: ['el_2', 'el_22', 'el_23', 'el_31'],
+    targetFactIds: ['fact_2', 'fact_22', 'fact_23', 'fact_31'],
+    tags: ['coreFact', 'defenseHit']
   }
 ];
 
-export const mockWorkbench: FocusWorkbench[] = [
+export const mockRequests: RequestNavItem[] = [
   {
-    id: 'focus_1',
-    title: '货款支付义务是否成立',
-    request: '请求1：支付货款 1,000,000 元',
-    riskLevel: 'medium',
-    pendingChecks: [
-      '需核验“收票后十日付款”条款与实际发票送达时间',
-      '需确认签收人是否具有收货授权',
-      '需确认被申请人提出质量异议的时间点是否在约定期限内'
-    ],
-    evidenceSnippets: [
-      {
-        id: 'ev_1',
-        title: '购销合同付款条款',
-        material: '证据1：购销合同',
-        position: '第5页 第3段',
-        stance: 'support',
-        confidence: 'high',
-        content: '合同约定验收通过且收票后十日内付款；逾期按约承担违约责任。',
-        anchorId: 'anchor_contract_payment'
-      },
-      {
-        id: 'ev_2',
-        title: '发货签收回执',
-        material: '证据2：发货单与签收回执',
-        position: '第2页 末段',
-        stance: 'support',
-        confidence: 'high',
-        content: '2023-12-08 被申请人仓储部签收，签收数量与合同约定一致。',
-        anchorId: 'anchor_delivery_receipt'
-      },
-      {
-        id: 'ev_3',
-        title: '质量异议记录',
-        material: '被申请人答辩书',
-        position: '第2页 第1段',
-        stance: 'weaken',
-        confidence: 'medium',
-        content: '被申请人称到货后发现20%型号不符，并于三日后发函提出异议。',
-        anchorId: 'anchor_quality_objection'
-      }
-    ],
-    lawSuggestions: [
-      {
-        id: 'law_1',
-        lawName: '民法典 第五百七十七条',
-        hitRule: '一方不履行合同义务应承担继续履行、赔偿损失等责任',
-        applicability: 'high'
-      },
-      {
-        id: 'law_2',
-        lawName: '民法典 第六百二十六条',
-        hitRule: '买受人应按约定支付价款',
-        applicability: 'high'
-      }
-    ],
-    draftConclusion: '现有证据足以初步认定货款支付义务成立，但应先核验发票送达节点，避免付款条件争议导致结论被推翻。'
+    id: 'req_1',
+    title: '请求1',
+    requestStatement: '请求裁决解除申请人与被申请人之间的教育培训合同',
+    evidenceStrength: 'strong',
+    hasDefense: true,
+    elementCount: 3,
+    defenseCount: 2
   },
   {
-    id: 'focus_2',
-    title: '逾期利息计算区间是否准确',
-    request: '请求2：支付逾期利息 86,000 元',
-    riskLevel: 'high',
-    pendingChecks: [
-      '需核对宽限期是否受补充协议影响',
-      '需确认起算日是否应从“收票后十日”而非“到货后十日”计算'
-    ],
-    evidenceSnippets: [
-      {
-        id: 'ev_4',
-        title: '利息计算明细',
-        material: '证据7：利息计算明细表',
-        position: '第1页',
-        stance: 'support',
-        confidence: 'medium',
-        content: '申请人按2024-01-11至2024-02-28计算利息共86,000元。',
-        anchorId: 'anchor_interest_table'
-      },
-      {
-        id: 'ev_5',
-        title: '邮件付款承诺',
-        material: '证据4：往来邮件与微信记录',
-        position: '第7页 第2段',
-        stance: 'neutral',
-        confidence: 'low',
-        content: '被申请人财务表示春节前安排付款，但未明确承诺具体日期。',
-        anchorId: 'anchor_reconciliation_mail'
-      }
-    ],
-    lawSuggestions: [
-      {
-        id: 'law_3',
-        lawName: '民法典 第五百八十五条',
-        hitRule: '约定违约金和损失赔偿可并行审查，明显过高可调减',
-        applicability: 'medium'
-      }
-    ],
-    draftConclusion: '利息计算基础尚不稳定，建议先完成付款条件起算节点复核，再输出可采纳结论。'
+    id: 'req_2',
+    title: '请求2',
+    requestStatement: '请求裁决被申请人立即退还申请人剩余18节课程培训费用人民币1474元',
+    evidenceStrength: 'medium',
+    hasDefense: true,
+    elementCount: 3,
+    defenseCount: 3
   },
   {
-    id: 'focus_3',
-    title: '违约金约定是否应调减',
-    request: '请求3：支付违约金 200,000 元',
-    riskLevel: 'medium',
-    pendingChecks: ['需核验申请人提交的融资成本证据与违约金金额匹配程度'],
-    evidenceSnippets: [
+    id: 'req_3',
+    title: '请求3',
+    requestStatement: '请求裁决本案仲裁费用由被申请人承担',
+    evidenceStrength: 'medium',
+    hasDefense: false,
+    elementCount: 1,
+    defenseCount: 0
+  }
+];
+
+export const mockWorkbench: RequestWorkbench[] = [
+  {
+    id: 'req_1',
+    title: '请求1：解除教育培训合同',
+    requestStatement: '请求裁决解除申请人与被申请人之间的教育培训合同',
+    reviewHint: '本请求重点核查合同关系是否成立、搬迁事项是否构成解除事由、解除通知与程序是否适格。',
+    elements: [
       {
-        id: 'ev_6',
-        title: '违约条款原文',
-        material: '证据1：购销合同',
-        position: '第9页 第2段',
-        stance: 'support',
-        confidence: 'high',
-        content: '逾期付款超过15日，违约方按合同总价15%支付违约金。',
-        anchorId: 'anchor_penalty_clause'
+        id: 'el_1',
+        title: '合同关系是否成立',
+        description: '需要确认双方之间存在真实有效的教育培训合同关系，且合同主体、标的、费用和履行方式明确。',
+        status: 'supported',
+        facts: [
+          {
+            id: 'fact_1',
+            title: '双方签订培训协议并明确课程与费用',
+            eventDate: '2019-03-28',
+            content: '申请人徐微与被申请人牡丹江市乐博特科技有限公司签订书面培训协议，约定课程名称、总课时、培训费用及履行地点。',
+            evidenceStrength: 'strong',
+            evidences: [
+              {
+                id: 'ev_1',
+                title: '乐高课程培训协议',
+                type: 'contract',
+                source: '双方签署',
+                position: '第1-3页',
+                provingPoint: '证明双方之间存在正式培训合同关系',
+                summary: '协议载明课程名称、总课时48课时、费用3980元及履行地点。',
+                anchorId: 'anchor_contract',
+                strength: 'strong'
+              },
+              {
+                id: 'ev_2',
+                title: '付款记录与收据',
+                type: 'payment',
+                source: '申请人',
+                position: '第1-2页',
+                provingPoint: '证明申请人已履行付款义务',
+                summary: '付款记录载明培训费3980元已支付完成。',
+                anchorId: 'anchor_payment',
+                strength: 'strong'
+              }
+            ]
+          }
+        ]
       },
       {
-        id: 'ev_7',
-        title: '调减抗辩意见',
-        material: '被申请人答辩书',
-        position: '第3页',
-        stance: 'weaken',
-        confidence: 'medium',
-        content: '被申请人主张违约金明显过高并提交同类交易利润率数据。',
-        anchorId: 'anchor_penalty_reduce'
-      }
-    ],
-    lawSuggestions: [
+        id: 'el_2',
+        title: '解除事由是否发生',
+        description: '需要确认校区搬迁、课程安排变化和实际履行障碍是否达到申请人主张解除合同的程度。',
+        status: 'contested',
+        facts: [
+          {
+            id: 'fact_2',
+            title: '被申请人发布校区搬迁通知',
+            eventDate: '2020-08-24',
+            content: '被申请人工作人员张老师在家长群发出通知，表示校区搬迁至新地址并于8月29日复课。',
+            evidenceStrength: 'strong',
+            evidences: [
+              {
+                id: 'ev_3',
+                title: '微信群通知截图',
+                type: 'communication',
+                source: '家长群',
+                position: '第4页',
+                provingPoint: '证明被申请人已明确通知搬迁及新授课安排',
+                summary: '通知明确搬迁时间、新校区地址及复课时间。',
+                anchorId: 'anchor_relocation_notice',
+                strength: 'strong'
+              },
+              {
+                id: 'ev_4',
+                title: '与张老师沟通记录',
+                type: 'communication',
+                source: '微信聊天',
+                position: '第6-8页',
+                provingPoint: '证明申请人因搬迁路程过远提出无法继续履行',
+                summary: '申请人向张老师说明接送困难并提出退还剩余课程费用。',
+                anchorId: 'anchor_chat_distance',
+                strength: 'medium'
+              }
+            ]
+          },
+          {
+            id: 'fact_3',
+            title: '申请人提出无法继续上课并要求解除',
+            eventDate: '2020-08-24',
+            content: '申请人当日即通过微信向张老师表示无法继续上课，并明确提出解除合同及退费请求。',
+            evidenceStrength: 'medium',
+            evidences: [
+              {
+                id: 'ev_5',
+                title: '申请人退费表述截图',
+                type: 'communication',
+                source: '微信聊天',
+                position: '第9页',
+                provingPoint: '证明申请人已作出解除和退费意思表示',
+                summary: '申请人表示“因新址过远无法继续上课，请退回剩余18节课费用”。',
+                anchorId: 'anchor_refund_request',
+                strength: 'medium'
+              }
+            ]
+          }
+        ]
+      },
       {
-        id: 'law_4',
-        lawName: '民法典 第五百八十五条第二款',
-        hitRule: '违约金过分高于造成损失的，可请求适当减少',
-        applicability: 'high'
+        id: 'el_3',
+        title: '解除程序是否适格',
+        description: '需要确认申请人解除意思表示是否已经送达、是否针对正确主体，以及被申请人是否作出明确回应。',
+        status: 'pending',
+        facts: [
+          {
+            id: 'fact_4',
+            title: '被申请人以内部转让和继续履行为由拒绝直接退费',
+            eventDate: '2020-08-25',
+            content: '被申请人称校区转让及搬迁由案外人刘艾芬负责，其自身不存在违约，申请人应继续履行或另行联系实际负责人。',
+            evidenceStrength: 'weak',
+            evidences: [
+              {
+                id: 'ev_6',
+                title: '被申请人答辩书摘录',
+                type: 'defense',
+                source: '答辩书',
+                position: '第2-3页',
+                provingPoint: '证明被申请人对解除程序及责任主体提出抗辩',
+                summary: '答辩称搬迁决定并非其作出，解除对象和责任主体存在争议。',
+                anchorId: 'anchor_defense_transfer',
+                strength: 'weak'
+              }
+            ]
+          }
+        ]
       }
     ],
-    draftConclusion: '违约金条款有效，但是否调减取决于损失证据与行业利润率对比，建议暂定“部分支持”并待补证。'
+    defenses: [
+      {
+        id: 'df_1',
+        targetElementId: 'el_2',
+        targetLabel: '解除事由是否发生',
+        type: 'fact',
+        targetName: '被申请人发布校区搬迁通知',
+        point: '被申请人主张搬迁事项不等于无法继续履行课程，申请人仍可在新址继续上课。',
+        source: '答辩书',
+        hitLevel: 'high',
+        content: '被申请人抗辩称仅系校区搬迁，不属于合同目的不能实现，不足以构成解除事由。',
+        evidenceExcerpt: '答辩书载明：“2020年8月24日搬迁通知仅系授课地点调整，我方已明确8月29日恢复授课，申请人仍可继续接受培训服务，不存在合同目的不能实现情形。”'
+      },
+      {
+        id: 'df_2',
+        targetElementId: 'el_3',
+        targetLabel: '解除程序是否适格',
+        type: 'evidence',
+        targetName: '申请人退费表述截图',
+        point: '被申请人主张申请人仅向张老师沟通，并未向被申请人正式送达解除通知。',
+        source: '答辩书',
+        hitLevel: 'medium',
+        content: '被申请人认为申请人的沟通对象并非合同约定的正式受理主体，解除程序存在瑕疵。',
+        evidenceExcerpt: '答辩书载明：“申请人仅与张老师个人沟通退费事宜，未向被申请人正式送达解除通知，也未履行合同约定的协商处理程序。”'
+      }
+    ]
+  },
+  {
+    id: 'req_2',
+    title: '请求2：退还剩余课程培训费用',
+    requestStatement: '请求裁决被申请人立即退还申请人剩余18节课程培训费用人民币1474元',
+    reviewHint: '本请求重点核查剩余课时是否真实存在、退费计算基础是否明确，以及被申请人就退费义务提出的抗辩。',
+    elements: [
+      {
+        id: 'el_21',
+        title: '剩余课时是否明确存在',
+        description: '需要确认申请人尚未消化的剩余课程数量及对应金额是否明确。',
+        status: 'supported',
+        facts: [
+          {
+            id: 'fact_21',
+            title: '申请人主张尚余18节课程未实际消化',
+            eventDate: '2020-08-24',
+            content: '申请人称截至搬迁通知发出时，尚有18节课程未上，按约应对应退还剩余培训费用。',
+            evidenceStrength: 'medium',
+            evidences: [
+              {
+                id: 'ev_21',
+                title: '剩余课时记录截图',
+                type: 'record',
+                source: '申请人提交',
+                position: '第10页',
+                provingPoint: '证明申请人尚余18节课程',
+                summary: '课时记录页面显示已消耗30节，剩余18节。',
+                anchorId: 'anchor_remaining_lessons',
+                strength: 'medium'
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'el_22',
+        title: '退费计算依据是否清楚',
+        description: '需要确认每节课程单价、已履行课时和剩余费用的对应关系。',
+        status: 'pending',
+        facts: [
+          {
+            id: 'fact_22',
+            title: '申请人按剩余18节课程折算退费1474元',
+            eventDate: '2020-08-24',
+            content: '申请人按协议费用总额及剩余课时比例，提出退还1474元培训费用。',
+            evidenceStrength: 'weak',
+            evidences: [
+              {
+                id: 'ev_22',
+                title: '退费金额测算说明',
+                type: 'calculation',
+                source: '申请人',
+                position: '第11页',
+                provingPoint: '证明退费金额测算过程',
+                summary: '申请人自行计算剩余18节课程折算金额为1474元，尚未见被申请人盖章确认。',
+                anchorId: 'anchor_refund_calculation',
+                strength: 'weak'
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'el_23',
+        title: '被申请人是否负有直接退费义务',
+        description: '需要确认合同主体、搬迁安排和实际负责主体之间的关系，判断退费责任归属。',
+        status: 'contested',
+        facts: [
+          {
+            id: 'fact_23',
+            title: '被申请人主张课程业务已内部转让',
+            eventDate: '2020-08-25',
+            content: '被申请人称课程业务已于2020年1月内部转让给刘艾芬老师，退费问题应联系实际负责人处理。',
+            evidenceStrength: 'weak',
+            evidences: [
+              {
+                id: 'ev_23',
+                title: '被申请人转让抗辩摘录',
+                type: 'defense',
+                source: '答辩书',
+                position: '第4页',
+                provingPoint: '证明被申请人否认自身承担直接退费责任',
+                summary: '答辩称培训机构内部业务已转让，费用和课时由案外人承接。',
+                anchorId: 'anchor_transfer_argument',
+                strength: 'weak'
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    defenses: [
+      {
+        id: 'df_21',
+        targetElementId: 'el_22',
+        targetLabel: '退费计算依据是否清楚',
+        type: 'evidence',
+        targetName: '退费金额测算说明',
+        point: '被申请人认为申请人测算方式缺少统一课时单价和合同约定扣减规则支持。',
+        source: '答辩书',
+        hitLevel: 'high',
+        content: '被申请人抗辩称1474元金额为申请人单方测算，缺乏合同和财务记录支撑。',
+        evidenceExcerpt: '答辩书载明：“1474元系申请人单方折算，并无双方确认的剩余课时和统一单价依据，我方财务系统亦未形成对应退费结算。”'
+      },
+      {
+        id: 'df_22',
+        targetElementId: 'el_23',
+        targetLabel: '被申请人是否负有直接退费义务',
+        type: 'fact',
+        targetName: '被申请人主张课程业务已内部转让',
+        point: '被申请人主张退费责任应由实际接手课程安排的人员承担。',
+        source: '答辩书',
+        hitLevel: 'medium',
+        content: '被申请人称其已不是实际履行主体，申请人将退费责任直接归于被申请人缺乏依据。',
+        evidenceExcerpt: '答辩书载明：“2020年1月起课程业务已由刘艾芬老师实际承接，后续课时安排和退费处理均应由实际履行方负责。”'
+      },
+      {
+        id: 'df_23',
+        targetElementId: 'el_21',
+        targetLabel: '剩余课时是否明确存在',
+        type: 'request',
+        targetName: '请求裁决退还剩余18节课程培训费用',
+        point: '被申请人认为申请人未先与机构核对剩余课时记录，课时数量尚需复核。',
+        source: '庭审答辩',
+        hitLevel: 'low',
+        content: '被申请人表示系统后台课时记录未在案，申请人主张的18节课程数尚需对账确认。',
+        evidenceExcerpt: '庭审答辩载明：“申请人所称剩余18节课程仅系其单方陈述，后台课时明细并未提交，剩余课时数量仍需双方核对确认。”'
+      }
+    ]
+  },
+  {
+    id: 'req_3',
+    title: '请求3：仲裁费用承担',
+    requestStatement: '请求裁决本案仲裁费用由被申请人承担',
+    reviewHint: '本请求依附主请求判断结果，重点关注是否存在支持主要请求成立的基础。',
+    elements: [
+      {
+        id: 'el_31',
+        title: '主请求是否具备被支持基础',
+        description: '若解除合同及退费请求主要获得支持，则仲裁费用承担请求具有相应基础。',
+        status: 'pending',
+        facts: [
+          {
+            id: 'fact_31',
+            title: '仲裁费用承担依赖前两项请求审查结果',
+            eventDate: '2024-09-08',
+            content: '仲裁费用承担并无独立事实链，主要依附于解除和退费请求的支持程度。',
+            evidenceStrength: 'medium',
+            evidences: [
+              {
+                id: 'ev_31',
+                title: '申请书仲裁请求部分',
+                type: 'application',
+                source: '仲裁申请书',
+                position: '第5页',
+                provingPoint: '证明申请人一并主张仲裁费用由被申请人承担',
+                summary: '仲裁申请书将仲裁费用承担列为第三项请求。',
+                anchorId: 'anchor_fee_request',
+                strength: 'medium'
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    defenses: []
   }
 ];
 
 export const mockOriginalAnchors: OriginalAnchorText[] = [
   {
-    id: 'anchor_contract_payment',
-    title: '原文片段-付款条件',
-    content: '《购销合同》第5条：买受人应于验收合格并收到增值税专用发票后十日内支付对应货款。'
-  },
-  {
-    id: 'anchor_delivery_receipt',
-    title: '原文片段-发货签收',
-    content: '发货单与签收回执载明：2023年12月8日，被申请人仓储部完成签收，签收人王某，数量与合同约定一致。'
-  },
-  {
-    id: 'anchor_interest_table',
-    title: '原文片段-利息明细',
-    content: '利息明细表载明：本金 1,000,000 元，按日万分之三，自 2024-01-11 计至 2024-02-28。'
-  },
-  {
-    id: 'anchor_reconciliation_mail',
-    title: '原文片段-邮件对账',
-    content: '2024年1月5日邮件中，被申请人财务确认应付货款余额 1,000,000 元，并表示春节前安排付款。'
-  },
-  {
-    id: 'anchor_quality_objection',
-    title: '原文片段-质量异议',
-    content: '被申请人提交《到货检验记录》，主张其中 20% 型号与订单不一致，要求换货后再付款。'
-  },
-  {
-    id: 'anchor_invoice_condition',
-    title: '原文片段-发票条件',
-    content: '被申请人答辩称合同约定“收票后十日付款”，申请人未在到期前完成发票寄送。'
-  },
-  {
-    id: 'anchor_penalty_clause',
-    title: '原文片段-违约条款',
-    content: '合同第9条约定：逾期付款超过15日，违约方应按合同总价15%向守约方支付违约金。'
-  },
-  {
-    id: 'anchor_finance_loss',
-    title: '原文片段-融资损失',
-    content: '申请人提交银行贷款利息流水，显示因应收账款回款延迟新增融资成本 96,500 元。'
-  },
-  {
-    id: 'anchor_penalty_reduce',
-    title: '原文片段-调减抗辩',
-    content: '被申请人主张违约金已明显高于可能损失，请求参照同类案件水平进行比例调减。'
-  },
-  {
-    id: 'anchor_loss_mitigation',
-    title: '原文片段-减损义务',
-    content: '被申请人称申请人可通过转售库存降低损失，未及时转售导致损失扩大。'
-  }
-];
+    id: 'anchor_contract',
+    title: '原文-培训协议',
+    content: `【乐高课程培训协议 · 原文摘录】
 
-export const mockConclusionDrafts: ConclusionDraft[] = [
-  {
-    id: 'c1',
-    title: '结论1：货款请求',
-    content: '建议倾向支持。合同关系及履行事实较完整，唯一需补核发票送达证据。',
-    confidence: 'medium',
-    references: ['证据1：购销合同', '证据2：发货单与签收回执', '证据4：往来邮件与微信记录'],
-    status: 'pending'
-  },
-  {
-    id: 'c2',
-    title: '结论2：逾期利息',
-    content: '建议暂缓采纳。利息起算点与付款条件存在解释冲突。',
-    confidence: 'low',
-    references: ['证据7：利息计算明细表', '证据1：购销合同'],
-    status: 'pending'
-  },
-  {
-    id: 'c3',
-    title: '结论3：违约金',
-    content: '建议部分支持。违约条款有效，但幅度可能需调减。',
-    confidence: 'medium',
-    references: ['证据1：购销合同', '被申请人答辩书', '证据9：融资利息流水'],
-    status: 'accepted'
-  }
-];
+甲方（培训机构）：牡丹江市乐博特科技有限公司
+乙方（学员监护人）：徐微
+学员姓名：徐XX
 
-export const mockRiskAlerts: RiskAlert[] = [
-  {
-    id: 'r1',
-    type: 'evidence',
-    title: '关键证据未闭环',
-    suggestion: '发票送达凭证未见原件，建议在证据链中补齐并标注来源。'
-  },
-  {
-    id: 'r2',
-    type: 'logic',
-    title: '结论与证据存在跳跃',
-    suggestion: '利息结论引用了付款承诺邮件，但未体现约定起算条款。'
-  },
-  {
-    id: 'r3',
-    type: 'procedure',
-    title: '程序风险待核验',
-    suggestion: '被申请人主体曾更名，需确认送达主体与营业执照主体一致。'
-  }
-];
+第一条 培训内容
+甲方为乙方之子提供乐高机器人编程课程培训服务，具体课程内容包括：
+1. 乐高基础搭建课程
+2. 初级编程入门课程
+3. 机器人实践操作课程
 
-export const mockTraceQueue = [
-  { id: 'q1', label: '未被引用关键证据', value: '2 条', level: 'warning' },
-  { id: 'q2', label: '低置信结论待复核', value: '1 条', level: 'danger' },
-  { id: 'q3', label: '已完成人工确认', value: '4 条', level: 'good' }
+第二条 课时与费用
+1. 培训课时：共计48课时，每课时45分钟
+2. 培训费用：人民币3980元整（大写：叁仟玖佰捌拾元整）
+3. 付款方式：签约时一次性支付
+
+第三条 培训地点与时间
+1. 培训地点：牡丹江市西安区太平路XX号
+2. 培训时间：每周六上午9:00-11:00
+
+签约日期：2019年3月28日
+甲方（盖章）：牡丹江市乐博特科技有限公司
+乙方（签字）：徐微`
+  },
+  {
+    id: 'anchor_payment',
+    title: '原文-付款记录',
+    content: `【付款凭证 · 原文摘录】
+
+银行转账记录
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+转账时间：2019年3月28日 14:32:15
+付款账户：徐微 尾号8856
+收款账户：牡丹江市乐博特科技有限公司
+转账金额：￥3,980.00
+转账备注：乐高培训费
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+收款收据
+今收到：徐微
+人民币（大写）：叁仟玖佰捌拾元整  ￥3,980.00
+款项用途：乐高机器人编程课程培训费（48课时）
+收款单位：牡丹江市乐博特科技有限公司
+日期：2019年3月28日`
+  },
+  {
+    id: 'anchor_relocation_notice',
+    title: '原文-搬迁通知',
+    content: `【微信群通知 · 原文摘录】
+
+群名称：乐博特乐高培训家长群
+发送时间：2020年8月24日 10:23
+发送人：张老师
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📢 重要通知
+各位家长好！
+因经营调整，我们的校区将于近日搬迁至新址：
+
+📍 新地址：东七条路文化创意产业园区B栋203室
+📅 复课时间：8月29日（周六）
+⏰ 上课时间：照常
+
+新校区环境更好，设施更完善，欢迎大家前来参观！
+如有疑问请私信我～
+━━━━━━━━━━━━━━━━━━━━━━━━━━━`
+  },
+  {
+    id: 'anchor_chat_distance',
+    title: '原文-距离原因沟通',
+    content: `【微信聊天记录 · 原文摘录】
+
+对话双方：徐微 ↔ 张老师
+时间：2020年8月24日
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11:05] 徐微：
+张老师，新校区距离我家太远了，开车要40多分钟，之前的校区骑电动车10分钟就到。这样接送太不方便了，孩子还剩18节课没上完，能不能退费？
+
+[11:15] 张老师：
+徐微妈妈，您好！非常理解您的顾虑。关于退费问题需要走公司流程，我先帮您登记，后续会有专人联系您处理。
+
+[14:30] 徐微：
+张老师，我考虑了一下，新校区确实太远了，接送不现实。我正式提出解除合同，请退还剩余18节课程的费用。
+━━━━━━━━━━━━━━━━━━━━━━━━━━━`
+  },
+  {
+    id: 'anchor_refund_request',
+    title: '原文-退费意思表示',
+    content: `【微信聊天记录 · 原文摘录】
+
+对话双方：徐微 ↔ 张老师
+时间：2020年8月24日 14:30
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+徐微：
+张老师，我考虑了一下，新校区确实太远了，接送不现实。我正式提出解除合同，请退还剩余18节课程的费用。按照3980元48课时计算，每课时约83元，18节课应该退1474元。
+
+[15:20] 张老师：
+收到您的诉求，我已经反馈给公司了。但是公司那边说课程业务已经转让给刘老师了，具体退费问题需要和刘老师协商。
+
+[16:00] 徐微：
+我签合同是和乐博特公司签的，钱也是交给公司的，内部转让是你们的事，不影响我和公司之间的合同关系。我要求公司直接退费。
+━━━━━━━━━━━━━━━━━━━━━━━━━━━`
+  },
+  {
+    id: 'anchor_defense_transfer',
+    title: '原文-转让抗辩',
+    content: `【被申请人答辩书 · 原文摘录】
+
+答辩人：牡丹江市乐博特科技有限公司
+
+一、关于合同解除请求
+答辩人不同意解除合同，理由如下：
+1. 2020年8月24日搬迁通知仅系授课地点调整，我方已明确8月29日恢复授课，申请人仍可继续接受培训服务，不存在合同目的不能实现情形；
+2. 校区搬迁属于经营场所正常调整，并非根本性违约行为；
+3. 新校区具备完善的教学条件，能够继续提供同等质量的培训服务。
+
+三、关于解除程序
+申请人仅与张老师个人沟通退费事宜，未向被申请人正式送达解除通知，也未履行合同约定的协商处理程序，解除程序存在瑕疵。`
+  },
+  {
+    id: 'anchor_remaining_lessons',
+    title: '原文-剩余课时',
+    content: `【课时记录截图 · 原文摘录】
+
+乐博特乐高培训 - 学员课时记录
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+学员姓名：徐XX
+监护人：徐微
+课程类型：乐高机器人编程课程
+总课时：48课时
+
+课时消耗明细：
+已完成课时：30节
+剩余课时：18节
+最后上课时间：2020年8月15日
+
+课时状态：正常
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+备注：截至2020年8月24日校区搬迁通知发出时，该学员尚有18节课程未实际消化。`
+  },
+  {
+    id: 'anchor_refund_calculation',
+    title: '原文-退费测算',
+    content: `【退费金额测算说明 · 申请人提交】
+
+退费计算依据
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+培训费用总额：3,980.00 元
+约定总课时：48 课时
+单课时单价：3,980 ÷ 48 ≈ 82.92 元/课时
+
+已完成课时：30 节
+剩余未消化课时：18 节
+
+退费金额计算：
+18 × 82.92 ≈ 1,492.56 元
+取整后主张金额：1,474.00 元
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+申请人按上述方式折算，主张退还剩余18节课程对应的培训费用1,474元。
+
+注：该测算为申请人单方计算，尚未取得被申请人书面确认。`
+  },
+  {
+    id: 'anchor_transfer_argument',
+    title: '原文-责任主体抗辩',
+    content: `【被申请人答辩书 · 原文摘录】
+
+二、关于退费请求
+答辩人不同意退还培训费用，理由如下：
+
+1. 课程业务已于2020年1月内部转让给刘艾芬老师实际承接，后续课时安排和退费处理均应由实际履行方负责；
+
+2. 申请人所称剩余18节课程仅系其单方陈述，后台课时明细并未提交，剩余课时数量仍需双方核对确认；
+
+3. 1474元系申请人单方折算，并无双方确认的剩余课时和统一单价依据，我方财务系统亦未形成对应退费结算。
+
+综上所述，请求仲裁庭驳回申请人的退费请求。`
+  },
+  {
+    id: 'anchor_fee_request',
+    title: '原文-仲裁费用请求',
+    content: `【仲裁申请书 · 原文摘录】
+
+仲裁请求：
+
+一、请求裁决解除申请人与被申请人之间的教育培训合同；
+
+二、请求裁决被申请人立即退还申请人剩余18节课程培训费用人民币1474元；
+
+三、请求裁决本案仲裁费用由被申请人承担。
+
+事实与理由：
+申请人认为被申请人单方变更履行地点，构成对合同主要条款的实质性变更，导致合同目的无法实现，申请人有权依法解除合同并要求退还剩余培训费用。
+
+被申请人应对本案纠纷承担全部责任，故仲裁费用亦应由被申请人承担。`
+  }
 ];
