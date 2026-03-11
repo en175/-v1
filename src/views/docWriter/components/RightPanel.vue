@@ -80,16 +80,12 @@
             :key="issue.id"
             class="wb-card check-card"
             :class="{ 'severity-error': issue.severity === 'error' }"
-            @click="emit('locate-paragraph', issue.paragraphId)"
+            @click="emit('locate-check', { paragraphId: issue.paragraphId, severity: issue.severity || 'warning' })"
           >
             <div class="check-head">
               <span class="check-type">
                 <span class="severity-dot" :class="issue.severity || 'warning'"></span>
                 {{ checkTypeText(issue.type) }}
-              </span>
-              <span v-if="issue.paragraphLabel" class="check-anchor">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
-                {{ issue.paragraphLabel }}
               </span>
             </div>
             <div style="font-size: 13px;">{{ issue.desc }}</div>
@@ -118,6 +114,7 @@
         <div
           v-for="comment in filteredComments"
           :key="comment.id"
+          :data-comment-id="comment.id"
           class="comment-card"
           :class="{ active: activeCommentId === comment.id, editing: editingCommentId === comment.id }"
           @click="handleCommentClick(comment)"
@@ -206,7 +203,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (event: 'locate-paragraph', paragraphId: string): void;
+  (event: 'locate-check', payload: { paragraphId: string; severity: string }): void;
+  (event: 'locate-comment', paragraphId: string): void;
   (event: 'ai-preset-select', payload: { actionKey: string; optionKey: string; actionLabel: string; optionLabel: string }): void;
   (event: 'update-comment', comment: CommentItem): void;
   (event: 'delete-comment', commentId: string): void;
@@ -281,7 +279,7 @@ const editTextareaRef = ref<HTMLTextAreaElement[] | null>(null);
 
 const handleCommentClick = (comment: CommentItem) => {
   activeCommentId.value = comment.id;
-  if (comment.paragraphId) emit('locate-paragraph', comment.paragraphId);
+  if (comment.paragraphId) emit('locate-comment', comment.paragraphId);
 };
 
 const startEdit = (comment: CommentItem) => {
@@ -318,7 +316,20 @@ const switchToCommentAndEdit = (commentId: string) => {
   });
 };
 
-defineExpose({ switchToCommentAndEdit });
+const switchToCommentTab = (commentId: string) => {
+  currentTab.value = 'comment';
+  activeCommentId.value = commentId;
+  nextTick(() => {
+    const el = document.querySelector(`[data-comment-id="${commentId}"]`) as HTMLElement;
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('comment-card-flash');
+      setTimeout(() => el.classList.remove('comment-card-flash'), 2000);
+    }
+  });
+};
+
+defineExpose({ switchToCommentAndEdit, switchToCommentTab });
 </script>
 
 <style scoped>
@@ -647,4 +658,19 @@ defineExpose({ switchToCommentAndEdit });
 .action-icon-btn:hover { background: #f0f4ff; color: var(--color-primary); }
 .action-icon-btn.delete-btn:hover { background: #fef2f2; color: #EF4444; }
 .action-icon-btn.resolve-btn:hover { background: #ecfdf5; color: #10B981; }
+
+/* 从文中点击批注时卡片闪烁动画 */
+.comment-card-flash {
+  animation: card-flash 2s ease-out forwards;
+}
+@keyframes card-flash {
+  0%, 40% {
+    box-shadow: 0 0 0 2px var(--color-primary);
+    background: #f0f4ff;
+  }
+  100% {
+    box-shadow: none;
+    background: #fff;
+  }
+}
 </style>

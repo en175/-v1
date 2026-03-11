@@ -1,7 +1,7 @@
 <template>
   <div class="left-panel">
     <div class="panel-header">
-      证据/材料引用
+      证据材料引用
     </div>
     <div class="panel-content evidence-panel">
       <!-- 提交方筛选 -->
@@ -38,8 +38,6 @@
             </div>
             <div class="header-right">
               <span class="mat-source-tag" :class="mat.sourceParty">{{ mat.source }}</span>
-              <span class="mat-count">{{ mat.evidenceItems.length }}条</span>
-              <span v-if="getQuotedCount(mat) > 0" class="mat-quoted-tag">已引{{ getQuotedCount(mat) }}</span>
             </div>
           </div>
 
@@ -53,7 +51,6 @@
             >
               <div class="evidence-head">
                 <span class="evidence-claim">{{ row.claim }}</span>
-                <span class="evidence-tag" :class="riskClass(row.conflictLevel)">{{ riskText(row.conflictLevel) }}</span>
               </div>
               <div class="evidence-excerpt">{{ row.excerpt }}</div>
               <div v-if="row.conflictNote" class="evidence-note">冲突提示：{{ row.conflictNote }}</div>
@@ -63,7 +60,7 @@
                   已引用{{ row.quoteCount && row.quoteCount > 1 ? ` ×${row.quoteCount}` : '' }}
                 </span>
                 <button class="wb-btn wb-btn-primary quote-btn" @click.stop="handleQuote(mat, row)">
-                  引用到文书
+                  引用
                 </button>
               </div>
             </div>
@@ -142,7 +139,7 @@ const handleQuote = (mat: MaterialItem, ev: EvidenceItem) => {
   display: flex;
   gap: 6px;
   margin-bottom: 12px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 .filter-chip {
   border: 1px solid var(--color-border);
@@ -152,6 +149,8 @@ const handleQuote = (mat: MaterialItem, ev: EvidenceItem) => {
   font-size: 12px;
   cursor: pointer;
   transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .filter-chip.active {
   border-color: #bfdbfe;
@@ -210,9 +209,7 @@ const handleQuote = (mat: MaterialItem, ev: EvidenceItem) => {
 .mat-title {
   font-size: 13px;
   font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-all;
 }
 .header-right {
   display: flex;
@@ -292,28 +289,6 @@ const handleQuote = (mat: MaterialItem, ev: EvidenceItem) => {
 .evidence-claim {
   font-size: 13px;
   font-weight: 600;
-}
-.evidence-tag {
-  font-size: 11px;
-  border-radius: 999px;
-  padding: 2px 8px;
-  border: 1px solid transparent;
-  white-space: nowrap;
-}
-.evidence-tag.safe {
-  color: #0f766e;
-  background: #ecfeff;
-  border-color: #a5f3fc;
-}
-.evidence-tag.warning {
-  color: #b45309;
-  background: #fffbeb;
-  border-color: #fde68a;
-}
-.evidence-tag.danger {
-  color: #b91c1c;
-  background: #fef2f2;
-  border-color: #fecaca;
 }
 .evidence-excerpt {
   margin-top: 6px;

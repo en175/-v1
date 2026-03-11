@@ -282,7 +282,7 @@ export const MOCK_MATERIALS: MaterialItem[] = [
 ];
 
 export const MOCK_AI_MSGS = [
-  { id: 'm1', role: 'ai', content: '您好，我是文书写作助手。请选择下方任务卡和预选项，我将按仲裁委文书规范生成建议。' }
+  { id: 'm1', role: 'ai', content: '您好，我是文书写作助手。请选择上方任务卡和预选项，我将按仲裁委文书规范生成建议。' }
 ];
 
 export const MOCK_EDITOR_CONTENT = `

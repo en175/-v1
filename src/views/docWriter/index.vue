@@ -9,10 +9,12 @@
       v-model="content" 
       :sections="docSections"
       :check-paragraph-ids="checkParagraphMarkers"
+      :comment-paragraph-ids="commentParagraphIds"
       @selection-change="handleSelectionChange"
       @section-change="handleSectionChange"
       @import-word="handleImportWord"
       @export-word="handleExportWord"
+      @comment-paragraph-click="handleCommentParagraphClick"
     />
     <RightPanel
       ref="rightPanelRef"
@@ -20,7 +22,9 @@
       :checkGroups="checkGroups"
       :comments="comments"
       :currentSection="currentSection"
-      @locate-paragraph="handleLocateParagraph"
+      @locate-check="handleLocateCheck"
+      @locate-comment="handleLocateComment"
+      @locate-failed="handleLocateFailed"
       @ai-preset-select="handleAiPresetSelect"
       @update-comment="handleUpdateComment"
       @add-comment="handleAddComment"
@@ -98,8 +102,6 @@ const content = ref(mockEditorContent);
 const docSections = DOC_SECTIONS;
 
 const currentSection = ref('');
-const footnotes = ref([]);
-let footnoteCounter = 0;
 
 const editorRef = ref(null);
 const rightPanelRef = ref(null);
@@ -184,7 +186,7 @@ const generateCandidate = (type, prompt) => {
   }, 500);
 };
 
-/* 脚注式证据引用 */
+/* 证据引用：在光标处直接插入 */
 const handleQuoteEvidence = ({ material, evidence }) => {
   if (evidence.conflictLevel === 'high') {
     showToast(`当前证据存在高风险冲突：${evidence.conflictNote}，请先完成冲突处理后再入稿。`, 'error');
@@ -192,24 +194,9 @@ const handleQuoteEvidence = ({ material, evidence }) => {
   }
   if (!editorRef.value) return;
 
-  footnoteCounter++;
-  const fnNum = footnoteCounter;
-  const fnId = `fn-${fnNum}`;
-
-  const footnoteRef = `<span class="footnote-ref" data-fn-id="${fnId}" title="${material.title}：${evidence.claim}">[证${fnNum}]</span>`;
-  editorRef.value.replaceSelectionText(evidence.excerpt + ' ' + footnoteRef);
-
-  footnotes.value.push({
-    id: fnId,
-    num: fnNum,
-    materialTitle: material.title,
-    claim: evidence.claim,
-    excerpt: evidence.excerpt
-  });
-
-  updateFootnoteSection();
+  editorRef.value.insertContentAndHighlight(evidence.excerpt);
   markEvidenceQuoted(evidence.id);
-  showToast(`已引用「${evidence.claim}」并添加脚注 [证${fnNum}]`);
+  showToast(`已引用「${evidence.claim}」`);
 };
 
 const markEvidenceQuoted = (evidenceId) => {
@@ -224,26 +211,6 @@ const markEvidenceQuoted = (evidenceId) => {
   }
 };
 
-const updateFootnoteSection = () => {
-  if (!editorRef.value || footnotes.value.length === 0) return;
-
-  nextTick(() => {
-    const fnSectionEl = document.querySelector('.footnote-section');
-    if (fnSectionEl) fnSectionEl.remove();
-
-    let fnHtml = '<div class="footnote-section" data-paragraph-id="sec-footnotes">';
-    fnHtml += '<div class="footnote-title">证据引用注释</div>';
-    for (const fn of footnotes.value) {
-      fnHtml += `<div class="footnote-item" id="${fn.id}"><span class="fn-num">[证${fn.num}]</span>${fn.materialTitle}：${fn.claim} —— "${fn.excerpt}"</div>`;
-    }
-    fnHtml += '</div>';
-
-    const currentHtml = editorRef.value.getHTML();
-    const cleanedHtml = currentHtml.replace(/<div class="footnote-section"[\s\S]*?<\/div>\s*<\/div>/, '');
-    editorRef.value.setContent(cleanedHtml + fnHtml);
-  });
-};
-
 /* AI Preset */
 const handleAiPresetSelect = ({ actionKey, optionKey, actionLabel, optionLabel }) => {
   const prompt = optionKey === '_default' ? `预选任务：${actionLabel}` : `预选任务：${actionLabel} / ${optionLabel}`;
@@ -252,9 +219,30 @@ const handleAiPresetSelect = ({ actionKey, optionKey, actionLabel, optionLabel }
   aiMsgs.value.push({ id: `a-${Date.now()}`, role: 'ai', content: reply });
 };
 
-const handleLocateParagraph = (paragraphId) => {
+/* 校对/批注段落标记 IDs */
+const commentParagraphIds = computed(() => {
+  return [...new Set(comments.value.filter(c => c.paragraphId).map(c => c.paragraphId))];
+});
+
+const handleLocateCheck = ({ paragraphId, severity }) => {
   if (!editorRef.value) return;
-  editorRef.value.scrollToParagraph(paragraphId);
+  editorRef.value.scrollToCheckParagraph(paragraphId, severity);
+};
+
+const handleLocateComment = (paragraphId) => {
+  if (!editorRef.value) return;
+  editorRef.value.scrollToCommentParagraph(paragraphId);
+};
+
+const handleLocateFailed = (paragraphId) => {
+  showToast('未找到对应段落，请确保文档已加载', 'warning');
+};
+
+const handleCommentParagraphClick = (paragraphId) => {
+  const comment = comments.value.find(c => c.paragraphId === paragraphId);
+  if (comment && rightPanelRef.value) {
+    rightPanelRef.value.switchToCommentTab(comment.id);
+  }
 };
 
 /* Comments */

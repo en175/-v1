@@ -107,8 +107,10 @@
     </div>
 
     <!-- Editor Content -->
-    <div ref="editorScrollRef" class="editor-content-wrapper" @scroll="handleEditorScroll">
+    <div ref="editorScrollRef" class="editor-content-wrapper" @scroll="handleEditorScroll" @click="handleContentClick">
       <editor-content :editor="editor" class="wb-paper" />
+      <!-- 高亮 overlay：不修改 ProseMirror DOM，确保可见 -->
+      <div ref="highlightOverlayRef" class="highlight-overlay" v-show="highlightOverlayActive"></div>
     </div>
   </div>
 </template>
@@ -116,12 +118,32 @@
 <script setup lang="ts">
 import { ref, onBeforeUnmount, computed, watch, onMounted, nextTick } from 'vue';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
+import { Extension } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Highlight from '@tiptap/extension-highlight';
 import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
 import Typography from '@tiptap/extension-typography';
+
+const ParagraphIdAttr = Extension.create({
+  name: 'paragraphIdAttr',
+  addGlobalAttributes() {
+    return [{
+      types: ['heading', 'paragraph'],
+      attributes: {
+        dataParagraphId: {
+          default: null,
+          parseHTML: (el: HTMLElement) => el.getAttribute('data-paragraph-id'),
+          renderHTML: (attrs: Record<string, any>) => {
+            if (!attrs.dataParagraphId) return {};
+            return { 'data-paragraph-id': attrs.dataParagraphId };
+          },
+        },
+      },
+    }];
+  },
+});
 
 interface SectionItem {
   key: string;
@@ -133,24 +155,118 @@ const props = defineProps({
   placeholder: { type: String, default: '请输入内容...' },
   editable: { type: Boolean, default: true },
   sections: { type: Array as () => SectionItem[], default: () => [] },
-  checkParagraphIds: { type: Array as () => { paragraphId: string; severity: string }[], default: () => [] }
+  checkParagraphIds: { type: Array as () => { paragraphId: string; severity: string }[], default: () => [] },
+  commentParagraphIds: { type: Array as () => string[], default: () => [] }
 });
 
-const emit = defineEmits(['update:modelValue', 'selection-change', 'section-change', 'import-word', 'export-word']);
+const emit = defineEmits(['update:modelValue', 'selection-change', 'section-change', 'import-word', 'export-word', 'comment-paragraph-click', 'locate-failed']);
 
 const editorScrollRef = ref<HTMLElement | null>(null);
+const highlightOverlayRef = ref<HTMLElement | null>(null);
+const highlightOverlayActive = ref(false);
 const activeSection = ref('');
 const autoSaveTime = ref('');
+let navScrollLock = false;
+let overlayCleanup: (() => void) | null = null;
 
 const updateAutoSaveTime = () => {
   const now = new Date();
   autoSaveTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 };
 
+/* 在编辑器 DOM 内查找，避免选错上下文 */
+const getEditorRoot = (): HTMLElement | null => {
+  const view = editor.value?.view;
+  return view?.dom ?? editorScrollRef.value;
+};
+
+const queryInEditor = (selector: string): Element | null => {
+  const root = getEditorRoot();
+  return root ? root.querySelector(selector) : document.querySelector(selector);
+};
+
+const queryAllInEditor = (selector: string): Element[] => {
+  const root = getEditorRoot();
+  return root ? Array.from(root.querySelectorAll(selector)) : Array.from(document.querySelectorAll(selector));
+};
+
+/* 标记注入函数 */
+const COMMENT_BG = 'rgba(251, 191, 36, 0.15)';
+const COMMENT_BG_HOVER = 'rgba(251, 191, 36, 0.28)';
+const COMMENT_BORDER = '3px solid #FBBF24';
+
+const injectCheckMarkers = () => {
+  queryAllInEditor('[data-check-marked]').forEach(el => {
+    (el as HTMLElement).style.borderLeft = '';
+    (el as HTMLElement).style.paddingLeft = '';
+    (el as HTMLElement).style.marginLeft = '';
+    el.removeAttribute('data-check-marked');
+  });
+  for (const item of props.checkParagraphIds) {
+    const el = queryInEditor(`[data-paragraph-id="${item.paragraphId}"]`) as HTMLElement;
+    if (el) {
+      el.setAttribute('data-check-marked', item.severity);
+      const color = item.severity === 'error' ? '#EF4444' : '#F59E0B';
+      el.style.borderLeft = `3px solid ${color}`;
+      el.style.paddingLeft = '12px';
+      el.style.marginLeft = '-15px';
+    }
+  }
+};
+
+const injectCommentMarkers = () => {
+  queryAllInEditor('[data-comment-marked]').forEach(el => {
+    const htmlEl = el as HTMLElement;
+    htmlEl.style.backgroundColor = '';
+    htmlEl.style.borderRight = '';
+    htmlEl.style.paddingRight = '';
+    htmlEl.style.marginRight = '';
+    htmlEl.style.cursor = '';
+    htmlEl.style.borderRadius = '';
+    htmlEl.removeAttribute('data-comment-marked');
+    el.classList.remove('comment-marker');
+  });
+  for (const id of props.commentParagraphIds) {
+    const el = queryInEditor(`[data-paragraph-id="${id}"]`) as HTMLElement;
+    if (el) {
+      el.setAttribute('data-comment-marked', 'true');
+      el.classList.add('comment-marker');
+      el.style.backgroundColor = COMMENT_BG;
+      el.style.borderRight = COMMENT_BORDER;
+      el.style.paddingRight = '12px';
+      el.style.marginRight = '-15px';
+      el.style.cursor = 'pointer';
+      el.style.borderRadius = '2px';
+    }
+  }
+};
+
+const injectAllMarkers = () => {
+  injectCheckMarkers();
+  injectCommentMarkers();
+};
+
 let autoSaveInterval: ReturnType<typeof setInterval>;
+/* 批注段落 hover（委托到容器） */
+const onCommentHover = (e: MouseEvent) => {
+  const el = (e.target as HTMLElement).closest('.comment-marker') as HTMLElement;
+  if (el && !el.hasAttribute('data-comment-active')) el.style.backgroundColor = COMMENT_BG_HOVER;
+};
+const onCommentUnhover = (e: MouseEvent) => {
+  const from = (e.target as HTMLElement).closest('.comment-marker') as HTMLElement;
+  const stillInside = from && e.relatedTarget && from.contains(e.relatedTarget as Node);
+  if (from && !stillInside && !from.hasAttribute('data-comment-active')) from.style.backgroundColor = COMMENT_BG;
+};
+
 onMounted(() => {
   updateAutoSaveTime();
   autoSaveInterval = setInterval(updateAutoSaveTime, 30000);
+  setTimeout(injectAllMarkers, 300);
+  const wrapper = editorScrollRef.value;
+  if (wrapper) {
+    wrapper.addEventListener('mouseover', onCommentHover);
+    wrapper.addEventListener('mouseout', onCommentUnhover);
+  }
 });
 
 const editor = useEditor({
@@ -162,8 +278,12 @@ const editor = useEditor({
     Highlight.configure({ multicolor: true }),
     TextAlign.configure({ types: ['heading', 'paragraph'] }),
     Placeholder.configure({ placeholder: props.placeholder }),
-    Typography
+    Typography,
+    ParagraphIdAttr
   ],
+  onCreate: () => {
+    nextTick(injectAllMarkers);
+  },
   onUpdate: ({ editor: e }) => {
     emit('update:modelValue', e.getHTML());
     updateAutoSaveTime();
@@ -198,6 +318,11 @@ watch(() => props.editable, (newValue) => {
 onBeforeUnmount(() => {
   if (editor.value) editor.value.destroy();
   clearInterval(autoSaveInterval);
+  const wrapper = editorScrollRef.value;
+  if (wrapper) {
+    wrapper.removeEventListener('mouseover', onCommentHover);
+    wrapper.removeEventListener('mouseout', onCommentUnhover);
+  }
 });
 
 const currentHeading = computed(() => {
@@ -220,18 +345,21 @@ const setHeading = (event: Event) => {
 
 /* 模块导航 */
 const handleSectionClick = (key: string) => {
+  navScrollLock = true;
   activeSection.value = key;
   scrollToParagraph(key);
   emit('section-change', key);
+  setTimeout(() => { navScrollLock = false; }, 800);
 };
 
 const handleEditorScroll = () => {
+  if (navScrollLock) return;
   if (!editorScrollRef.value || props.sections.length === 0) return;
   const containerTop = editorScrollRef.value.getBoundingClientRect().top + 60;
 
   let currentKey = props.sections[0]?.key || '';
   for (const sec of props.sections) {
-    const el = document.querySelector(`[data-paragraph-id="${sec.key}"]`);
+    const el = queryInEditor(`[data-paragraph-id="${sec.key}"]`);
     if (el) {
       const rect = el.getBoundingClientRect();
       if (rect.top <= containerTop) {
@@ -246,25 +374,120 @@ const handleEditorScroll = () => {
   }
 };
 
-/* 校对标记注入 */
-watch(() => props.checkParagraphIds, (items) => {
-  nextTick(() => {
-    document.querySelectorAll('.check-marker-error, .check-marker-warning').forEach(el => {
-      el.classList.remove('check-marker-error', 'check-marker-warning');
-    });
-    for (const item of items) {
-      const el = document.querySelector(`[data-paragraph-id="${item.paragraphId}"]`);
-      if (el) {
-        el.classList.add(item.severity === 'error' ? 'check-marker-error' : 'check-marker-warning');
+watch(() => props.checkParagraphIds, () => { nextTick(injectCheckMarkers); }, { deep: true });
+watch(() => props.commentParagraphIds, () => { nextTick(injectCommentMarkers); }, { deep: true });
+
+/* 点击文中批注段落 → 通知外层 */
+const handleContentClick = (e: MouseEvent) => {
+  const target = e.target as HTMLElement;
+  const markerEl = target.closest('.comment-marker') as HTMLElement | null;
+  if (markerEl) {
+    const pid = markerEl.getAttribute('data-paragraph-id');
+    if (pid) emit('comment-paragraph-click', pid);
+  }
+};
+
+/* 用 overlay 高亮，不依赖 ProseMirror DOM 属性 */
+const showHighlightOverlay = (el: HTMLElement, type: 'check-error' | 'check-warning' | 'comment') => {
+  overlayCleanup?.();
+  const overlay = highlightOverlayRef.value;
+  const container = editorScrollRef.value;
+  if (!overlay || !container) return;
+
+  const updatePos = () => {
+    const tr = el.getBoundingClientRect();
+    const cr = container.getBoundingClientRect();
+    const cs = getComputedStyle(container);
+    const pt = parseFloat(cs.paddingTop) || 0;
+    const pl = parseFloat(cs.paddingLeft) || 0;
+    overlay.style.top = (tr.top - cr.top - pt + container.scrollTop) + 'px';
+    overlay.style.left = (tr.left - cr.left - pl + container.scrollLeft) + 'px';
+    overlay.style.width = tr.width + 'px';
+    overlay.style.height = tr.height + 'px';
+  };
+
+  overlay.className = 'highlight-overlay highlight-overlay-' + type;
+  overlay.style.background = type === 'check-error' ? 'rgba(239,68,68,0.25)'
+    : type === 'check-warning' ? 'rgba(245,158,11,0.25)'
+    : 'rgba(251,191,36,0.35)';
+  updatePos();
+  highlightOverlayActive.value = true;
+
+  const onScroll = () => updatePos();
+  container.addEventListener('scroll', onScroll);
+  const t = setTimeout(() => {
+    highlightOverlayActive.value = false;
+    container.removeEventListener('scroll', onScroll);
+    overlayCleanup = null;
+  }, 5500);
+  overlayCleanup = () => {
+    clearTimeout(t);
+    container.removeEventListener('scroll', onScroll);
+    highlightOverlayActive.value = false;
+    overlayCleanup = null;
+  };
+};
+
+const tryFindEl = (paragraphId: string): HTMLElement | null => {
+  let el = queryInEditor(`[data-paragraph-id="${paragraphId}"]`) || document.querySelector(`[data-paragraph-id="${paragraphId}"]`);
+  if (el) return el as HTMLElement;
+  /* 备用：从 ProseMirror 文档按 dataParagraphId 查找 DOM */
+  const view = editor.value?.view;
+  if (view) {
+    let found: Node | null = null;
+    view.state.doc.descendants((node, pos) => {
+      if (node.attrs?.dataParagraphId === paragraphId) {
+        const dom = view.nodeDOM(pos);
+        if (dom) found = dom as Node;
       }
-    }
-  });
-}, { immediate: true, deep: true });
+    });
+    return found as HTMLElement | null;
+  }
+  return null;
+};
+
+/* 校对检查 */
+const scrollToCheckParagraph = (paragraphId: string, severity: string) => {
+  let el = tryFindEl(paragraphId);
+  if (!el) {
+    setTimeout(() => {
+      el = tryFindEl(paragraphId);
+      if (el) doCheckHighlight(el, severity);
+      else emit('locate-failed', paragraphId);
+    }, 150);
+    return;
+  }
+  doCheckHighlight(el, severity);
+};
+
+const doCheckHighlight = (el: HTMLElement, severity: string) => {
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  nextTick(() => showHighlightOverlay(el, severity === 'error' ? 'check-error' : 'check-warning'));
+};
+
+/* 批注 */
+const scrollToCommentParagraph = (paragraphId: string) => {
+  let el = tryFindEl(paragraphId);
+  if (!el) {
+    setTimeout(() => {
+      el = tryFindEl(paragraphId);
+      if (el) doCommentHighlight(el);
+      else emit('locate-failed', paragraphId);
+    }, 150);
+    return;
+  }
+  doCommentHighlight(el);
+};
+
+const doCommentHighlight = (el: HTMLElement) => {
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  nextTick(() => showHighlightOverlay(el, 'comment'));
+};
 
 /* Expose methods */
 const scrollToParagraph = (paragraphId: string) => {
   if (!editor.value) return;
-  const el = document.querySelector(`[data-paragraph-id="${paragraphId}"]`) || document.querySelector(`[data-section-id="${paragraphId}"]`);
+  const el = queryInEditor(`[data-paragraph-id="${paragraphId}"]`) || queryInEditor(`[data-section-id="${paragraphId}"]`);
   if (el) {
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     highlightParagraph(paragraphId);
@@ -272,11 +495,34 @@ const scrollToParagraph = (paragraphId: string) => {
 };
 
 const highlightParagraph = (paragraphId: string) => {
-  const el = document.querySelector(`[data-paragraph-id="${paragraphId}"]`) || document.querySelector(`[data-section-id="${paragraphId}"]`);
+  const el = queryInEditor(`[data-paragraph-id="${paragraphId}"]`) || queryInEditor(`[data-section-id="${paragraphId}"]`);
   if (el) {
     el.classList.add('temp-highlight');
-    setTimeout(() => el.classList.remove('temp-highlight'), 2000);
+    setTimeout(() => el.classList.remove('temp-highlight'), 6000);
   }
+};
+
+const insertContentAndHighlight = (html: string) => {
+  if (!editor.value) return;
+  editor.value.chain().focus().insertContent(html).scrollIntoView().run();
+
+  nextTick(() => {
+    try {
+      const sel = window.getSelection();
+      if (!sel || !sel.focusNode) return;
+      let node: Node | null = sel.focusNode;
+      while (node && node !== editorScrollRef.value) {
+        if (node instanceof HTMLElement && /^(P|H[1-6]|DIV|LI)$/i.test(node.tagName) && !node.classList.contains('ProseMirror')) {
+          node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          node.classList.add('temp-highlight');
+          const target = node;
+          setTimeout(() => target.classList.remove('temp-highlight'), 6000);
+          break;
+        }
+        node = node.parentNode;
+      }
+    } catch (_) { /* silent */ }
+  });
 };
 
 const getSelectionRange = () => {
@@ -301,7 +547,10 @@ const setContent = (html: string) => {
 
 defineExpose({
   scrollToParagraph,
+  scrollToCheckParagraph,
+  scrollToCommentParagraph,
   highlightParagraph,
+  insertContentAndHighlight,
   getSelectionRange,
   replaceSelectionText,
   getHTML,
@@ -428,11 +677,21 @@ defineExpose({
 }
 
 .editor-content-wrapper {
+  position: relative;
   flex: 1;
   overflow-y: auto;
   padding: 24px;
   display: block;
   min-height: 0;
+}
+
+/* 高亮 overlay - 覆盖在段落上，不修改 ProseMirror DOM */
+.highlight-overlay {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 4px;
+  z-index: 5;
+  transition: opacity 0.3s ease-out;
 }
 
 /* Tiptap styles */
@@ -477,10 +736,10 @@ defineExpose({
 
 /* Highlight */
 :deep(.temp-highlight) {
-  animation: highlight-fade 2s ease-out forwards;
+  animation: highlight-fade 6s ease-out forwards;
 }
 @keyframes highlight-fade {
-  0% { background-color: rgba(255, 255, 0, 0.5); }
+  0%, 83% { background-color: rgba(255, 255, 0, 0.4); }
   100% { background-color: transparent; }
 }
 
@@ -494,6 +753,43 @@ defineExpose({
   border-left: 3px solid #F59E0B;
   padding-left: 12px;
   margin-left: -15px;
+}
+
+/* 校对检查点击高亮（红色/橙色底） */
+:deep(.temp-highlight-error) {
+  animation: highlight-fade-error 6s ease-out forwards;
+}
+:deep(.temp-highlight-warning) {
+  animation: highlight-fade-warning 6s ease-out forwards;
+}
+@keyframes highlight-fade-error {
+  0%, 83% { background-color: rgba(239, 68, 68, 0.25); }
+  100% { background-color: transparent; }
+}
+@keyframes highlight-fade-warning {
+  0%, 83% { background-color: rgba(245, 158, 11, 0.25); }
+  100% { background-color: transparent; }
+}
+
+/* 批注段落持久标记（飞书风格） */
+:deep(.comment-marker) {
+  background-color: rgba(251, 191, 36, 0.15);
+  border-right: 3px solid #FBBF24;
+  padding-right: 12px;
+  margin-right: -15px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-right-color 0.2s;
+  border-radius: 2px;
+}
+:deep(.comment-marker:hover) {
+  background-color: rgba(251, 191, 36, 0.28);
+  border-right-color: #F59E0B;
+}
+:deep(.comment-marker-active) {
+  background-color: rgba(251, 191, 36, 0.35) !important;
+  border-right: 3px solid #F59E0B !important;
+  margin-right: -15px;
+  padding-right: 12px;
 }
 
 /* 脚注引用上标 */
@@ -537,5 +833,22 @@ defineExpose({
   color: var(--color-primary);
   font-weight: 600;
   margin-right: 4px;
+}
+</style>
+
+<!-- 全局高亮样式，不受 scoped 限制，确保在 ProseMirror 内生效 -->
+<style>
+[data-highlight="check-error"] {
+  background-color: rgba(239, 68, 68, 0.35) !important;
+  border-radius: 2px;
+}
+[data-highlight="check-warning"] {
+  background-color: rgba(245, 158, 11, 0.35) !important;
+  border-radius: 2px;
+}
+[data-highlight="comment"] {
+  background-color: rgba(251, 191, 36, 0.4) !important;
+  border-right: 3px solid #F59E0B !important;
+  border-radius: 2px;
 }
 </style>
