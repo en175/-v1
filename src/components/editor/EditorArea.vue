@@ -109,6 +109,7 @@
     <!-- Editor Content -->
     <div ref="editorScrollRef" class="editor-content-wrapper" @scroll="handleEditorScroll" @click="handleContentClick">
       <editor-content :editor="editor" class="wb-paper" />
+      <div ref="commentUnderlineLayerRef" class="comment-underline-layer"></div>
       <!-- 高亮 overlay：不修改 ProseMirror DOM，确保可见 -->
       <div ref="highlightOverlayRef" class="highlight-overlay" v-show="highlightOverlayActive"></div>
     </div>
@@ -156,18 +157,20 @@ const props = defineProps({
   editable: { type: Boolean, default: true },
   sections: { type: Array as () => SectionItem[], default: () => [] },
   checkParagraphIds: { type: Array as () => { paragraphId: string; severity: string }[], default: () => [] },
-  commentParagraphIds: { type: Array as () => string[], default: () => [] }
+  commentMarkers: { type: Array as () => { id?: string; paragraphId: string; selectedText?: string }[], default: () => [] }
 });
 
 const emit = defineEmits(['update:modelValue', 'selection-change', 'section-change', 'import-word', 'export-word', 'comment-paragraph-click', 'locate-failed']);
 
 const editorScrollRef = ref<HTMLElement | null>(null);
 const highlightOverlayRef = ref<HTMLElement | null>(null);
+const commentUnderlineLayerRef = ref<HTMLElement | null>(null);
 const highlightOverlayActive = ref(false);
 const activeSection = ref('');
 const autoSaveTime = ref('');
 let navScrollLock = false;
 let overlayCleanup: (() => void) | null = null;
+let commentUnderlineRaf = 0;
 
 const updateAutoSaveTime = () => {
   const now = new Date();
@@ -189,11 +192,6 @@ const queryAllInEditor = (selector: string): Element[] => {
   const root = getEditorRoot();
   return root ? Array.from(root.querySelectorAll(selector)) : Array.from(document.querySelectorAll(selector));
 };
-
-/* 标记注入函数 */
-const COMMENT_BG = 'rgba(251, 191, 36, 0.15)';
-const COMMENT_BG_HOVER = 'rgba(251, 191, 36, 0.28)';
-const COMMENT_BORDER = '3px solid #FBBF24';
 
 const injectCheckMarkers = () => {
   queryAllInEditor('[data-check-marked]').forEach(el => {
@@ -217,28 +215,85 @@ const injectCheckMarkers = () => {
 const injectCommentMarkers = () => {
   queryAllInEditor('[data-comment-marked]').forEach(el => {
     const htmlEl = el as HTMLElement;
-    htmlEl.style.backgroundColor = '';
-    htmlEl.style.borderRight = '';
-    htmlEl.style.paddingRight = '';
-    htmlEl.style.marginRight = '';
     htmlEl.style.cursor = '';
-    htmlEl.style.borderRadius = '';
     htmlEl.removeAttribute('data-comment-marked');
     el.classList.remove('comment-marker');
   });
-  for (const id of props.commentParagraphIds) {
-    const el = queryInEditor(`[data-paragraph-id="${id}"]`) as HTMLElement;
+  for (const marker of props.commentMarkers) {
+    const el = queryInEditor(`[data-paragraph-id="${marker.paragraphId}"]`) as HTMLElement;
     if (el) {
       el.setAttribute('data-comment-marked', 'true');
       el.classList.add('comment-marker');
-      el.style.backgroundColor = COMMENT_BG;
-      el.style.borderRight = COMMENT_BORDER;
-      el.style.paddingRight = '12px';
-      el.style.marginRight = '-15px';
       el.style.cursor = 'pointer';
-      el.style.borderRadius = '2px';
     }
   }
+};
+
+const findTextRangeInElement = (el: HTMLElement, text: string): Range | null => {
+  const target = text.trim();
+  if (!target) return null;
+  const fullText = el.textContent || '';
+  const start = fullText.indexOf(target);
+  if (start === -1) return null;
+  const end = start + target.length;
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  let textNode: Node | null = walker.nextNode();
+  let current = 0;
+  let startNode: Node | null = null;
+  let endNode: Node | null = null;
+  let startOffset = 0;
+  let endOffset = 0;
+  while (textNode) {
+    const value = textNode.textContent || '';
+    const next = current + value.length;
+    if (!startNode && start >= current && start <= next) {
+      startNode = textNode;
+      startOffset = Math.max(0, start - current);
+    }
+    if (!endNode && end >= current && end <= next) {
+      endNode = textNode;
+      endOffset = Math.max(0, end - current);
+    }
+    if (startNode && endNode) break;
+    current = next;
+    textNode = walker.nextNode();
+  }
+  if (!startNode || !endNode) return null;
+  const range = document.createRange();
+  range.setStart(startNode, startOffset);
+  range.setEnd(endNode, endOffset);
+  return range;
+};
+
+const renderCommentUnderlines = () => {
+  const layer = commentUnderlineLayerRef.value;
+  const container = editorScrollRef.value;
+  if (!layer || !container) return;
+  layer.innerHTML = '';
+  const cr = container.getBoundingClientRect();
+  for (const marker of props.commentMarkers) {
+    const el = tryFindEl(marker.paragraphId);
+    if (!el) continue;
+    const range = marker.selectedText ? findTextRangeInElement(el, marker.selectedText) : null;
+    const rects = range ? Array.from(range.getClientRects()) : [el.getBoundingClientRect()];
+    for (const rect of rects) {
+      if (!rect.width || !rect.height) continue;
+      const line = document.createElement('span');
+      line.className = 'comment-underline-line';
+      line.style.left = (rect.left - cr.left + container.scrollLeft) + 'px';
+      line.style.top = (rect.bottom - cr.top + container.scrollTop - 2) + 'px';
+      line.style.width = rect.width + 'px';
+      layer.appendChild(line);
+    }
+  }
+};
+
+const scheduleCommentUnderlineRender = () => {
+  if (commentUnderlineRaf) return;
+  commentUnderlineRaf = requestAnimationFrame(() => {
+    commentUnderlineRaf = 0;
+    renderCommentUnderlines();
+  });
 };
 
 const injectAllMarkers = () => {
@@ -247,26 +302,13 @@ const injectAllMarkers = () => {
 };
 
 let autoSaveInterval: ReturnType<typeof setInterval>;
-/* 批注段落 hover（委托到容器） */
-const onCommentHover = (e: MouseEvent) => {
-  const el = (e.target as HTMLElement).closest('.comment-marker') as HTMLElement;
-  if (el && !el.hasAttribute('data-comment-active')) el.style.backgroundColor = COMMENT_BG_HOVER;
-};
-const onCommentUnhover = (e: MouseEvent) => {
-  const from = (e.target as HTMLElement).closest('.comment-marker') as HTMLElement;
-  const stillInside = from && e.relatedTarget && from.contains(e.relatedTarget as Node);
-  if (from && !stillInside && !from.hasAttribute('data-comment-active')) from.style.backgroundColor = COMMENT_BG;
-};
 
 onMounted(() => {
   updateAutoSaveTime();
   autoSaveInterval = setInterval(updateAutoSaveTime, 30000);
   setTimeout(injectAllMarkers, 300);
-  const wrapper = editorScrollRef.value;
-  if (wrapper) {
-    wrapper.addEventListener('mouseover', onCommentHover);
-    wrapper.addEventListener('mouseout', onCommentUnhover);
-  }
+  setTimeout(renderCommentUnderlines, 320);
+  window.addEventListener('resize', scheduleCommentUnderlineRender);
 });
 
 const editor = useEditor({
@@ -287,6 +329,10 @@ const editor = useEditor({
   onUpdate: ({ editor: e }) => {
     emit('update:modelValue', e.getHTML());
     updateAutoSaveTime();
+    nextTick(() => {
+      injectAllMarkers();
+      scheduleCommentUnderlineRender();
+    });
   },
   onSelectionUpdate: ({ editor: e }) => {
     const { from, to } = e.state.selection;
@@ -318,11 +364,8 @@ watch(() => props.editable, (newValue) => {
 onBeforeUnmount(() => {
   if (editor.value) editor.value.destroy();
   clearInterval(autoSaveInterval);
-  const wrapper = editorScrollRef.value;
-  if (wrapper) {
-    wrapper.removeEventListener('mouseover', onCommentHover);
-    wrapper.removeEventListener('mouseout', onCommentUnhover);
-  }
+  window.removeEventListener('resize', scheduleCommentUnderlineRender);
+  if (commentUnderlineRaf) cancelAnimationFrame(commentUnderlineRaf);
 });
 
 const currentHeading = computed(() => {
@@ -353,6 +396,7 @@ const handleSectionClick = (key: string) => {
 };
 
 const handleEditorScroll = () => {
+  scheduleCommentUnderlineRender();
   if (navScrollLock) return;
   if (!editorScrollRef.value || props.sections.length === 0) return;
   const containerTop = editorScrollRef.value.getBoundingClientRect().top + 60;
@@ -375,7 +419,12 @@ const handleEditorScroll = () => {
 };
 
 watch(() => props.checkParagraphIds, () => { nextTick(injectCheckMarkers); }, { deep: true });
-watch(() => props.commentParagraphIds, () => { nextTick(injectCommentMarkers); }, { deep: true });
+watch(() => props.commentMarkers, () => {
+  nextTick(() => {
+    injectCommentMarkers();
+    scheduleCommentUnderlineRender();
+  });
+}, { deep: true });
 
 /* 点击文中批注段落 → 通知外层 */
 const handleContentClick = (e: MouseEvent) => {
@@ -388,20 +437,17 @@ const handleContentClick = (e: MouseEvent) => {
 };
 
 /* 用 overlay 高亮，不依赖 ProseMirror DOM 属性 */
-const showHighlightOverlay = (el: HTMLElement, type: 'check-error' | 'check-warning' | 'comment') => {
+const showHighlightOverlay = (target: HTMLElement | Range, type: 'check-error' | 'check-warning' | 'comment') => {
   overlayCleanup?.();
   const overlay = highlightOverlayRef.value;
   const container = editorScrollRef.value;
   if (!overlay || !container) return;
 
   const updatePos = () => {
-    const tr = el.getBoundingClientRect();
+    const tr = target instanceof Range ? target.getBoundingClientRect() : target.getBoundingClientRect();
     const cr = container.getBoundingClientRect();
-    const cs = getComputedStyle(container);
-    const pt = parseFloat(cs.paddingTop) || 0;
-    const pl = parseFloat(cs.paddingLeft) || 0;
-    overlay.style.top = (tr.top - cr.top - pt + container.scrollTop) + 'px';
-    overlay.style.left = (tr.left - cr.left - pl + container.scrollLeft) + 'px';
+    overlay.style.top = (tr.top - cr.top + container.scrollTop) + 'px';
+    overlay.style.left = (tr.left - cr.left + container.scrollLeft) + 'px';
     overlay.style.width = tr.width + 'px';
     overlay.style.height = tr.height + 'px';
   };
@@ -447,41 +493,49 @@ const tryFindEl = (paragraphId: string): HTMLElement | null => {
 };
 
 /* 校对检查 */
-const scrollToCheckParagraph = (paragraphId: string, severity: string) => {
-  let el = tryFindEl(paragraphId);
-  if (!el) {
+const resolveHighlightTarget = (paragraphId: string, targetText = ''): { paragraphEl: HTMLElement; target: HTMLElement | Range } | null => {
+  const paragraphEl = tryFindEl(paragraphId);
+  if (!paragraphEl) return null;
+  const range = targetText ? findTextRangeInElement(paragraphEl, targetText) : null;
+  if (range) return { paragraphEl, target: range };
+  return { paragraphEl, target: paragraphEl };
+};
+
+const scrollToCheckParagraph = (paragraphId: string, severity: string, targetText = '') => {
+  let resolved = resolveHighlightTarget(paragraphId, targetText);
+  if (!resolved) {
     setTimeout(() => {
-      el = tryFindEl(paragraphId);
-      if (el) doCheckHighlight(el, severity);
+      resolved = resolveHighlightTarget(paragraphId, targetText);
+      if (resolved) doCheckHighlight(resolved.paragraphEl, resolved.target, severity);
       else emit('locate-failed', paragraphId);
     }, 150);
     return;
   }
-  doCheckHighlight(el, severity);
+  doCheckHighlight(resolved.paragraphEl, resolved.target, severity);
 };
 
-const doCheckHighlight = (el: HTMLElement, severity: string) => {
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  nextTick(() => showHighlightOverlay(el, severity === 'error' ? 'check-error' : 'check-warning'));
+const doCheckHighlight = (paragraphEl: HTMLElement, target: HTMLElement | Range, severity: string) => {
+  paragraphEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => showHighlightOverlay(target, severity === 'error' ? 'check-error' : 'check-warning'), 180);
 };
 
 /* 批注 */
-const scrollToCommentParagraph = (paragraphId: string) => {
-  let el = tryFindEl(paragraphId);
-  if (!el) {
+const scrollToCommentParagraph = (paragraphId: string, selectedText = '') => {
+  let resolved = resolveHighlightTarget(paragraphId, selectedText);
+  if (!resolved) {
     setTimeout(() => {
-      el = tryFindEl(paragraphId);
-      if (el) doCommentHighlight(el);
+      resolved = resolveHighlightTarget(paragraphId, selectedText);
+      if (resolved) doCommentHighlight(resolved.paragraphEl, resolved.target);
       else emit('locate-failed', paragraphId);
     }, 150);
     return;
   }
-  doCommentHighlight(el);
+  doCommentHighlight(resolved.paragraphEl, resolved.target);
 };
 
-const doCommentHighlight = (el: HTMLElement) => {
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  nextTick(() => showHighlightOverlay(el, 'comment'));
+const doCommentHighlight = (paragraphEl: HTMLElement, target: HTMLElement | Range) => {
+  paragraphEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => showHighlightOverlay(target, 'comment'), 180);
 };
 
 /* Expose methods */
@@ -685,6 +739,22 @@ defineExpose({
   min-height: 0;
 }
 
+.comment-underline-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.comment-underline-line {
+  position: absolute;
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: #FBBF24;
+  opacity: 0.95;
+}
+
 /* 高亮 overlay - 覆盖在段落上，不修改 ProseMirror DOM */
 .highlight-overlay {
   position: absolute;
@@ -771,25 +841,15 @@ defineExpose({
   100% { background-color: transparent; }
 }
 
-/* 批注段落持久标记（飞书风格） */
+/* 批注段落持久标记 */
 :deep(.comment-marker) {
-  background-color: rgba(251, 191, 36, 0.15);
-  border-right: 3px solid #FBBF24;
-  padding-right: 12px;
-  margin-right: -15px;
   cursor: pointer;
-  transition: background-color 0.2s, border-right-color 0.2s;
-  border-radius: 2px;
-}
-:deep(.comment-marker:hover) {
-  background-color: rgba(251, 191, 36, 0.28);
-  border-right-color: #F59E0B;
+  transition: color 0.2s;
 }
 :deep(.comment-marker-active) {
-  background-color: rgba(251, 191, 36, 0.35) !important;
-  border-right: 3px solid #F59E0B !important;
-  margin-right: -15px;
-  padding-right: 12px;
+  text-decoration: underline;
+  text-decoration-color: #F59E0B;
+  text-decoration-thickness: 2px;
 }
 
 /* 脚注引用上标 */

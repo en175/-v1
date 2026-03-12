@@ -9,7 +9,7 @@
       v-model="content" 
       :sections="docSections"
       :check-paragraph-ids="checkParagraphMarkers"
-      :comment-paragraph-ids="commentParagraphIds"
+      :comment-markers="commentMarkers"
       @selection-change="handleSelectionChange"
       @section-change="handleSectionChange"
       @import-word="handleImportWord"
@@ -220,18 +220,20 @@ const handleAiPresetSelect = ({ actionKey, optionKey, actionLabel, optionLabel }
 };
 
 /* 校对/批注段落标记 IDs */
-const commentParagraphIds = computed(() => {
-  return [...new Set(comments.value.filter(c => c.paragraphId).map(c => c.paragraphId))];
+const commentMarkers = computed(() => {
+  return comments.value
+    .filter(c => c.paragraphId)
+    .map(c => ({ id: c.id, paragraphId: c.paragraphId, selectedText: c.selectedText || '' }));
 });
 
-const handleLocateCheck = ({ paragraphId, severity }) => {
+const handleLocateCheck = ({ paragraphId, severity, targetText }) => {
   if (!editorRef.value) return;
-  editorRef.value.scrollToCheckParagraph(paragraphId, severity);
+  editorRef.value.scrollToCheckParagraph(paragraphId, severity, targetText || '');
 };
 
-const handleLocateComment = (paragraphId) => {
+const handleLocateComment = ({ paragraphId, selectedText }) => {
   if (!editorRef.value) return;
-  editorRef.value.scrollToCommentParagraph(paragraphId);
+  editorRef.value.scrollToCommentParagraph(paragraphId, selectedText || '');
 };
 
 const handleLocateFailed = (paragraphId) => {
@@ -262,13 +264,14 @@ const handleDeleteComment = (commentId) => {
 const handleToolbarAddComment = () => {
   const selection = window.getSelection();
   const selectedText = selection ? selection.toString().trim() : '';
+  const paragraphId = getSelectionParagraphId(selection);
   const newId = 'cm-sel-' + Date.now();
   const newItem = {
     id: newId,
     title: selectedText ? (selectedText.length > 20 ? selectedText.slice(0, 20) + '...' : selectedText) : '新批注',
     content: '',
     status: 'pending',
-    paragraphId: '',
+    paragraphId,
     author: '当前用户',
     createdAt: new Date().toLocaleString('zh-CN'),
     selectedText: selectedText || ''
@@ -278,6 +281,17 @@ const handleToolbarAddComment = () => {
   nextTick(() => {
     if (rightPanelRef.value) rightPanelRef.value.switchToCommentAndEdit(newId);
   });
+};
+
+const getSelectionParagraphId = (selection) => {
+  if (!selection || selection.rangeCount === 0) return '';
+  let node = selection.anchorNode;
+  if (!node) return '';
+  if (node.nodeType === Node.TEXT_NODE) node = node.parentNode;
+  const el = node instanceof Element ? node : null;
+  if (!el) return '';
+  const paragraphEl = el.closest('[data-paragraph-id]');
+  return paragraphEl ? paragraphEl.getAttribute('data-paragraph-id') || '' : '';
 };
 
 const handleCopyResult = async () => {

@@ -341,27 +341,27 @@ export const MOCK_CHECK_GROUPS = [
     id: 'cg1',
     title: '格式与术语',
     items: [
-      { id: 'c1', type: 'format', desc: '案号格式建议核对是否与仲裁委登记系统一致', paragraphId: 'p-caseno', paragraphLabel: '案号', severity: 'warning' },
-      { id: 'c2', type: 'format', desc: '裁决主文金额需与事实查明段金额严格一致', paragraphId: 'p-ruling2', paragraphLabel: '裁决主文第一项', severity: 'error' },
-      { id: 'c3', type: 'format', desc: '"本委"与"仲裁庭"称谓需全文统一', paragraphId: 'p-claim1', paragraphLabel: '仲裁请求首段', severity: 'warning' }
+      { id: 'c1', type: 'format', desc: '案号格式建议核对是否与仲裁委登记系统一致', paragraphId: 'p-caseno', paragraphLabel: '案号', severity: 'warning', targetText: '(2026)京仲案字第 0188 号' },
+      { id: 'c2', type: 'format', desc: '裁决主文金额需与事实查明段金额严格一致', paragraphId: 'p-ruling2', paragraphLabel: '裁决主文第一项', severity: 'error', targetText: '1,180,000.00 元' },
+      { id: 'c3', type: 'format', desc: '"本委"与"仲裁庭"称谓需全文统一', paragraphId: 'p-claim1', paragraphLabel: '仲裁请求首段', severity: 'warning', targetText: '申请人请求仲裁庭裁决如下' }
     ]
   },
   {
     id: 'cg2',
     title: '逻辑与论证',
     items: [
-      { id: 'c4', type: 'logic', desc: '争议焦点二应引用《民法典》第585条关于违约金调整的裁判依据', paragraphId: 'p-focus2', paragraphLabel: '争议焦点二', severity: 'error' },
-      { id: 'c5', type: 'logic', desc: '被申请人质量抗辩的庭审陈述变化需更充分说理', paragraphId: 'p-inv5', paragraphLabel: '查明·庭审陈述', severity: 'warning' },
-      { id: 'c6', type: 'logic', desc: '主体认定需引用签收回执和对账邮件具体内容', paragraphId: 'p-focus3', paragraphLabel: '争议焦点三', severity: 'warning' }
+      { id: 'c4', type: 'logic', desc: '争议焦点二应引用《民法典》第585条关于违约金调整的裁判依据', paragraphId: 'p-focus2', paragraphLabel: '争议焦点二', severity: 'error', targetText: '折合年化约 18.25%' },
+      { id: 'c5', type: 'logic', desc: '被申请人质量抗辩的庭审陈述变化需更充分说理', paragraphId: 'p-inv5', paragraphLabel: '查明·庭审陈述', severity: 'warning', targetText: '存在明显差异' },
+      { id: 'c6', type: 'logic', desc: '主体认定需引用签收回执和对账邮件具体内容', paragraphId: 'p-focus3', paragraphLabel: '争议焦点三', severity: 'warning', targetText: '签收回执亦加盖被申请人公章' }
     ]
   },
   {
     id: 'cg3',
     title: '证据引用',
     items: [
-      { id: 'c7', type: 'evidence', desc: '签收回执"型号待进一步验收"注明应在查明段完整引述', paragraphId: 'p-inv3', paragraphLabel: '查明·签收回执', severity: 'warning' },
-      { id: 'c8', type: 'evidence', desc: '对账邮件的发送人、收件人岗位信息建议补充', paragraphId: 'p-inv4', paragraphLabel: '查明·对账邮件', severity: 'warning' },
-      { id: 'c9', type: 'evidence', desc: '催款函签收时间与利息起算关联需在说理段明确', paragraphId: 'p-fact3', paragraphLabel: '事实·催告送达', severity: 'error' }
+      { id: 'c7', type: 'evidence', desc: '签收回执"型号待进一步验收"注明应在查明段完整引述', paragraphId: 'p-inv3', paragraphLabel: '查明·签收回执', severity: 'warning', targetText: '型号待进一步验收' },
+      { id: 'c8', type: 'evidence', desc: '对账邮件的发送人、收件人岗位信息建议补充', paragraphId: 'p-inv4', paragraphLabel: '查明·对账邮件', severity: 'warning', targetText: '电子邮件确认应付货款余额' },
+      { id: 'c9', type: 'evidence', desc: '催款函签收时间与利息起算关联需在说理段明确', paragraphId: 'p-fact3', paragraphLabel: '事实·催告送达', severity: 'error', targetText: '快递签收记录显示被申请人已于次日签收' }
     ]
   }
 ];
@@ -373,11 +373,11 @@ export const COMMENT_FILTERS = [
 ];
 
 export const MOCK_COMMENTS = [
-  { id: 'cm1', title: '补充违约金裁判依据', content: '争议焦点二应引用《民法典》第五百八十五条第二款关于违约金调整的规定，增强说理充分性。', status: 'pending', paragraphId: 'p-focus2', author: '张仲裁员', createdAt: '2026-03-08 14:30' },
-  { id: 'cm2', title: '统一主体全称', content: '"申请人"首次出现时建议写全称"申请人北京科技有限公司"，此后可简称"申请人"。', status: 'resolved', paragraphId: 'p-applicant', author: '李秘书', createdAt: '2026-03-07 10:15' },
-  { id: 'cm3', title: '签收回执引述不完整', content: '查明段引述签收回执时应包含"型号待进一步验收"这一关键注明，该内容与被申请人质量抗辩直接相关。', status: 'pending', paragraphId: 'p-inv3', author: '张仲裁员', createdAt: '2026-03-08 15:00' },
-  { id: 'cm4', title: '对账邮件细节待补充', content: '对账邮件的发送人岗位、收件人确认回复内容建议在查明段补充，增强证据采信说服力。', status: 'pending', paragraphId: 'p-inv4', author: '王首席', createdAt: '2026-03-09 09:20' },
-  { id: 'cm5', title: '仲裁费用金额核实', content: '仲裁费用25,000元需与立案缴费凭证核对，确认金额准确后再写入裁决主文。', status: 'pending', paragraphId: 'p-ruling4', author: '李秘书', createdAt: '2026-03-09 11:00' }
+  { id: 'cm1', title: '补充违约金裁判依据', content: '争议焦点二应引用《民法典》第五百八十五条第二款关于违约金调整的规定，增强说理充分性。', status: 'pending', paragraphId: 'p-focus2', author: '张仲裁员', createdAt: '2026-03-08 14:30', selectedText: '折合年化约 18.25%' },
+  { id: 'cm2', title: '统一主体全称', content: '"申请人"首次出现时建议写全称"申请人北京科技有限公司"，此后可简称"申请人"。', status: 'resolved', paragraphId: 'p-applicant', author: '李秘书', createdAt: '2026-03-07 10:15', selectedText: '申请人北京科技有限公司' },
+  { id: 'cm3', title: '签收回执引述不完整', content: '查明段引述签收回执时应包含"型号待进一步验收"这一关键注明，该内容与被申请人质量抗辩直接相关。', status: 'pending', paragraphId: 'p-inv3', author: '张仲裁员', createdAt: '2026-03-08 15:00', selectedText: '型号待进一步验收' },
+  { id: 'cm4', title: '对账邮件细节待补充', content: '对账邮件的发送人岗位、收件人确认回复内容建议在查明段补充，增强证据采信说服力。', status: 'pending', paragraphId: 'p-inv4', author: '王首席', createdAt: '2026-03-09 09:20', selectedText: '电子邮件确认应付货款余额' },
+  { id: 'cm5', title: '仲裁费用金额核实', content: '仲裁费用25,000元需与立案缴费凭证核对，确认金额准确后再写入裁决主文。', status: 'pending', paragraphId: 'p-ruling4', author: '李秘书', createdAt: '2026-03-09 11:00', selectedText: '仲裁费用人民币 25,000.00 元' }
 ];
 
 export const MOCK_AI_CANDIDATES: Record<string, string> = {

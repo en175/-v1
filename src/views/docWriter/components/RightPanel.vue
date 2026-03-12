@@ -80,7 +80,7 @@
             :key="issue.id"
             class="wb-card check-card"
             :class="{ 'severity-error': issue.severity === 'error' }"
-            @click="emit('locate-check', { paragraphId: issue.paragraphId, severity: issue.severity || 'warning' })"
+            @click="emit('locate-check', { paragraphId: issue.paragraphId, severity: issue.severity || 'warning', targetText: issue.targetText || '' })"
           >
             <div class="check-head">
               <span class="check-type">
@@ -193,6 +193,7 @@ interface CheckItem {
   paragraphId: string;
   paragraphLabel?: string;
   severity?: string;
+  targetText?: string;
 }
 
 const props = defineProps<{
@@ -203,8 +204,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (event: 'locate-check', payload: { paragraphId: string; severity: string }): void;
-  (event: 'locate-comment', paragraphId: string): void;
+  (event: 'locate-check', payload: { paragraphId: string; severity: string; targetText?: string }): void;
+  (event: 'locate-comment', payload: { paragraphId: string; selectedText?: string }): void;
   (event: 'ai-preset-select', payload: { actionKey: string; optionKey: string; actionLabel: string; optionLabel: string }): void;
   (event: 'update-comment', comment: CommentItem): void;
   (event: 'delete-comment', commentId: string): void;
@@ -279,7 +280,7 @@ const editTextareaRef = ref<HTMLTextAreaElement[] | null>(null);
 
 const handleCommentClick = (comment: CommentItem) => {
   activeCommentId.value = comment.id;
-  if (comment.paragraphId) emit('locate-comment', comment.paragraphId);
+  if (comment.paragraphId) emit('locate-comment', { paragraphId: comment.paragraphId, selectedText: comment.selectedText || '' });
 };
 
 const startEdit = (comment: CommentItem) => {
