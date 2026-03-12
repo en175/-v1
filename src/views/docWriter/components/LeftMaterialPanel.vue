@@ -44,6 +44,7 @@
               <span class="mat-title">{{ mat.title }}</span>
             </div>
             <div class="header-right">
+              <button type="button" class="wb-btn wb-btn-text preview-btn" @click.stop="openMaterialPreview(mat)">预览</button>
               <span class="mat-source-tag" :class="mat.sourceParty">{{ mat.source }}</span>
             </div>
           </div>
@@ -75,6 +76,36 @@
         </div>
       </div>
     </div>
+
+    <div v-if="showPreviewDialog && previewMaterial" class="dialog-overlay" @click.self="closePreviewDialog">
+      <div class="pdf-viewer-dialog">
+        <div class="pdf-head">
+          <div class="pdf-title-wrap">
+            <div class="pdf-title">{{ previewMaterial.title }}</div>
+            <div class="pdf-meta">
+              <span class="pdf-pill">{{ previewMaterial.fileType || 'PDF' }}</span>
+              <span class="pdf-pill">{{ previewMaterial.fileSize || '2.1 MB' }}</span>
+            </div>
+          </div>
+          <button type="button" class="wb-btn" @click="closePreviewDialog">关闭</button>
+        </div>
+        <div class="pdf-toolbar">
+          <button type="button" class="pdf-toolbar-btn">上一页</button>
+          <button type="button" class="pdf-toolbar-btn">下一页</button>
+          <span class="pdf-page">第 1 / {{ Math.max(1, previewMaterial?.evidenceItems?.length || 1) }} 页</span>
+          <button type="button" class="pdf-toolbar-btn">缩小</button>
+          <button type="button" class="pdf-toolbar-btn">100%</button>
+          <button type="button" class="pdf-toolbar-btn">放大</button>
+        </div>
+        <div class="pdf-body">
+          <div class="pdf-page-paper">
+            <div class="paper-title">{{ previewMaterial.title }}</div>
+            <div class="paper-subtitle">{{ previewMaterial.source }} ｜ 提交时间：{{ previewMaterial.submittedAt }}</div>
+            <div class="paper-content">{{ buildMaterialPreviewText(previewMaterial) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -94,8 +125,11 @@ const sourceFilters = SOURCE_FILTERS;
 const activeFilter = ref('all');
 
 const expandedIds = reactive(new Set<string>());
-if (props.materials.length > 0) {
-  expandedIds.add(props.materials[0].id);
+const showPreviewDialog = ref(false);
+const previewMaterial = ref<MaterialItem | null>(null);
+const firstMaterial = props.materials[0];
+if (firstMaterial) {
+  expandedIds.add(firstMaterial.id);
 }
 
 const filteredMaterials = computed(() => {
@@ -133,6 +167,20 @@ const riskText = (level: EvidenceItem['conflictLevel']) => {
 
 const handleQuote = (mat: MaterialItem, ev: EvidenceItem) => {
   emit('quote-evidence', { material: mat, evidence: ev });
+};
+
+const openMaterialPreview = (mat: MaterialItem) => {
+  previewMaterial.value = mat;
+  showPreviewDialog.value = true;
+};
+
+const closePreviewDialog = () => {
+  showPreviewDialog.value = false;
+};
+
+const buildMaterialPreviewText = (mat: MaterialItem) => {
+  const lines = mat.evidenceItems.map((item, idx) => `${idx + 1}. ${item.claim}\n${item.excerpt}`);
+  return `【材料摘要】\n${lines.join('\n\n')}\n\n【审查提示】\n1. 优先核对金额、日期与主体信息是否一致；\n2. 对冲突项补充页码或证据编号；\n3. 形成“事实-证据-结论”对应关系后再引用入稿。`;
 };
 </script>
 
@@ -228,6 +276,10 @@ const handleQuote = (mat: MaterialItem, ev: EvidenceItem) => {
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
+}
+.preview-btn {
+  font-size: 12px;
+  padding: 2px 6px;
 }
 .mat-source-tag {
   font-size: 11px;
@@ -332,5 +384,107 @@ const handleQuote = (mat: MaterialItem, ev: EvidenceItem) => {
   padding: 4px 10px;
   min-height: 28px;
   margin-left: auto;
+}
+
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.35);
+}
+.pdf-viewer-dialog {
+  width: min(1100px, calc(100vw - 48px));
+  max-height: calc(100vh - 48px);
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+  display: flex;
+  flex-direction: column;
+}
+.pdf-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+  background: #f8fbff;
+}
+.pdf-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e3257;
+}
+.pdf-meta {
+  margin-top: 6px;
+  display: flex;
+  gap: 8px;
+}
+.pdf-pill {
+  font-size: 12px;
+  color: #4a5f88;
+  background: #edf2fc;
+  border: 1px solid #d9e4f8;
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+.pdf-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-border);
+  background: #fff;
+}
+.pdf-toolbar-btn {
+  border: 1px solid #dae3f6;
+  border-radius: 6px;
+  background: #fff;
+  color: #2b3f64;
+  font-size: 12px;
+  padding: 4px 10px;
+}
+.pdf-page {
+  margin: 0 4px 0 8px;
+  font-size: 12px;
+  color: #5f7398;
+}
+.pdf-body {
+  flex: 1;
+  background: #edf2fb;
+  overflow: auto;
+  padding: 20px;
+}
+.pdf-page-paper {
+  width: min(760px, calc(100% - 12px));
+  margin: 0 auto;
+  min-height: 760px;
+  border: 1px solid #d5dff0;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.1);
+  padding: 28px 30px;
+}
+.paper-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f3359;
+}
+.paper-subtitle {
+  text-align: center;
+  font-size: 12px;
+  color: #687c9f;
+  margin-top: 10px;
+}
+.paper-content {
+  margin-top: 18px;
+  white-space: pre-wrap;
+  font-size: 14px;
+  line-height: 1.85;
+  color: #1f3151;
 }
 </style>

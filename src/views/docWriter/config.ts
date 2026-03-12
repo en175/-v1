@@ -7,12 +7,12 @@ export const WRITER_TABS = [
 /* ========== 模块导航 ========== */
 export const DOC_SECTIONS = [
   { key: 'sec-header', label: '首部' },
-  { key: 'sec-claims', label: '仲裁请求' },
-  { key: 'sec-facts', label: '案件事实' },
-  { key: 'sec-defense', label: '答辩' },
-  { key: 'sec-investigation', label: '查明' },
-  { key: 'sec-analysis', label: '认为' },
-  { key: 'sec-ruling', label: '裁决主文' }
+  { key: 'sec-claims', label: '案件受理及程序' },
+  { key: 'sec-facts', label: '案件事实及双方主张' },
+  { key: 'sec-defense', label: '被申请人答辩及反请求' },
+  { key: 'sec-investigation', label: '仲裁庭查明' },
+  { key: 'sec-analysis', label: '仲裁庭意见' },
+  { key: 'sec-ruling', label: '裁决' }
 ];
 
 /* ========== 模块感知 AI 推荐任务 ========== */
@@ -22,16 +22,16 @@ export const SECTION_AI_PRESETS: Record<string, { key: string; label: string; de
     { key: 'gen-header', label: '补全首部格式', desc: '按仲裁委文书规范补全首部信息' }
   ],
   'sec-claims': [
-    { key: 'list-claims', label: '梳理请求事项', desc: '从申请书中提取并结构化请求事项' },
-    { key: 'check-amount', label: '核验金额一致性', desc: '比对请求金额与证据材料中的金额' }
+    { key: 'gen-timeline', label: '梳理程序时间轴', desc: '按受理、组庭、开庭节点生成程序段' },
+    { key: 'check-amount', label: '核验程序文书', desc: '核验受理通知、组庭通知、送达记录一致性' }
   ],
   'sec-facts': [
-    { key: 'gen-timeline', label: '梳理事实时间线', desc: '根据证据材料生成时间轴' },
-    { key: 'quote-evidence', label: '引用证据材料', desc: '为事实陈述插入对应证据引用' }
+    { key: 'list-claims', label: '梳理请求与主张', desc: '结构化申请请求、答辩观点与证据线索' },
+    { key: 'quote-evidence', label: '补充证据指向', desc: '为事实段插入证据编号与核心内容' }
   ],
   'sec-defense': [
-    { key: 'summarize-defense', label: '归纳答辩要点', desc: '从答辩书中提取核心抗辩主张' },
-    { key: 'compare-claims', label: '对比申辩主张', desc: '将申请人主张与被申请人抗辩逐项对比' }
+    { key: 'summarize-defense', label: '归纳答辩反请求', desc: '提取抗辩逻辑与反请求条款' },
+    { key: 'compare-claims', label: '对比申辩争点', desc: '逐项对照请求、反请求与证据矛盾点' }
   ],
   'sec-investigation': [
     { key: 'gen-findings', label: '生成查明事实', desc: '综合双方证据生成查明段落' },
@@ -286,54 +286,62 @@ export const MOCK_AI_MSGS = [
 ];
 
 export const MOCK_EDITOR_CONTENT = `
-  <h1 style="text-align: center">北京仲裁委员会裁决书</h1>
-  <p data-paragraph-id="p-caseno" style="text-align: right">（2026）京仲案字第 0188 号</p>
+  <h1 style="text-align: center">裁决书</h1>
+  <p data-paragraph-id="p-caseno" style="text-align: center">（2026）京仲裁字第 0321 号</p>
 
   <h2 data-paragraph-id="sec-header">一、首部</h2>
-  <p data-paragraph-id="p-applicant"><strong>申 请 人：</strong>北京科技有限公司。住所地北京市朝阳区某道 XXX 号。法定代表人王某，执行董事。委托代理人李某，北京某律师事务所律师。</p>
-  <p data-paragraph-id="p-agent1"><strong>被申请人：</strong>上海贸易有限公司。住所地上海市浦东新区某路 200 号。法定代表人赵某，总经理。委托代理人周某，上海某律师事务所律师。</p>
-  <p data-paragraph-id="p-respondent">北京仲裁委员会（以下简称本会）根据申请人提交的仲裁申请书及相关合同中的仲裁条款，受理本案并依法组成仲裁庭进行审理。</p>
+  <p data-paragraph-id="p-applicant"><strong>申 请 人：</strong>北京华远建设工程有限公司</p>
+  <p data-paragraph-id="p-agent1"><strong>住　　所：</strong>北京市朝阳区建国路 88 号</p>
+  <p data-paragraph-id="p-respondent"><strong>法定代表人：</strong>刘某某，总经理</p>
+  <p data-paragraph-id="p-party4"><strong>委托代理人：</strong>王某，北京京衡律师事务所律师</p>
+  <p data-paragraph-id="p-party5"><strong>委托代理人：</strong>陈某，北京京衡律师事务所实习律师</p>
+  <p data-paragraph-id="p-party6" style="text-indent: 0">　</p>
+  <p data-paragraph-id="p-party7"><strong>被 申 请 人：</strong>北京京城置业有限公司</p>
+  <p data-paragraph-id="p-party8"><strong>住　　所：</strong>北京市丰台区南四环西路 66 号</p>
+  <p data-paragraph-id="p-party9"><strong>法定代表人：</strong>赵某某，董事长</p>
+  <p data-paragraph-id="p-party10"><strong>委托代理人：</strong>孙某，北京德实律师事务所律师</p>
+  <p data-paragraph-id="p-party11"><strong>委托代理人：</strong>马某，北京德实律师事务所律师</p>
 
-  <h2 data-paragraph-id="sec-claims">二、仲裁请求</h2>
-  <p data-paragraph-id="p-claim1">申请人请求仲裁庭裁决如下：</p>
-  <p data-paragraph-id="p-claim2">1. 被申请人向申请人北京科技有限公司支付货款人民币 1,180,000.00 元；</p>
-  <p data-paragraph-id="p-claim3">2. 被申请人向申请人支付逾期付款违约金人民币 20,000.00 元；</p>
-  <p data-paragraph-id="p-claim4">3. 被申请人承担本案仲裁费用。</p>
+  <h2 data-paragraph-id="sec-claims">二、案件受理及程序</h2>
+  <p data-paragraph-id="p-claim1">本会根据申请人提交的《仲裁申请书》及双方签署的《机电安装工程分包合同》中的仲裁条款，于 2026 年 2 月 6 日受理本案，案号为（2026）京仲裁字第 0321 号。</p>
+  <p data-paragraph-id="p-claim2">本案适用《北京仲裁委员会仲裁规则》（2024 修订）。本会依法向双方当事人送达了受理通知、仲裁规则、仲裁员名册、举证通知及开庭通知。</p>
+  <p data-paragraph-id="p-claim3">因双方未在规定期限内共同选定首席仲裁员，本会主任依法指定周某某为首席仲裁员，指定张某某、李某某为仲裁员，三位仲裁员于 2026 年 3 月 1 日组成仲裁庭。</p>
+  <p data-paragraph-id="p-claim4">仲裁庭于 2026 年 4 月 12 日开庭审理本案。双方当事人及其代理人均到庭参加庭审，对仲裁庭组成和审理程序均未提出异议。</p>
 
-  <h2 data-paragraph-id="sec-facts">三、案件事实</h2>
-  <p data-paragraph-id="p-fact1">申请人与被申请人于 2023 年 12 月 1 日签订《购销合同》，约定由申请人向被申请人供应电子元器件，合同总价款人民币 1,200,000.00 元，付款期限为收货验收后 30 日内一次性支付。</p>
-  <p data-paragraph-id="p-fact2">申请人于 2023 年 12 月 8 日完成交付，被申请人经办人在签收回执上签字并加盖公章，回执记载“货物数量与合同一致，型号待进一步验收”。</p>
-  <p data-paragraph-id="p-fact3">被申请人于 2024 年 1 月 8 日支付货款人民币 20,000.00 元。此后，申请人于 2024 年 1 月 10 日发出书面催款函，快递签收记录显示被申请人已于次日签收，但剩余货款未付。</p>
+  <h2 data-paragraph-id="sec-facts">三、案件事实及双方主张</h2>
+  <p data-paragraph-id="p-fact1">申请人称：其已按照合同约定完成北京市丰台区“京城云庭项目”1#、2#楼机电安装工程施工，并于 2025 年 11 月 30 日通过总包及监理联合验收。被申请人尚欠工程款及质保金共计 4,860,000 元。</p>
+  <p data-paragraph-id="p-fact2">申请人最终确认的仲裁请求为：1. 支付工程款 4,200,000 元；2. 支付逾期付款违约金 460,000 元（暂计至 2026 年 1 月 31 日）；3. 本案仲裁费用由被申请人承担。</p>
+  <p data-paragraph-id="p-fact3">申请人提交的主要证据包括：合同及补充协议、工程量确认单、结算单、验收记录、付款凭证、往来函件及催款通知等。</p>
 
-  <h2 data-paragraph-id="sec-defense">四、双方主张与答辩</h2>
-  <p data-paragraph-id="p-defense1">被申请人答辩称：其一，约 20% 货物型号与合同不符，已及时提出质量异议；其二，合同约定违约金标准偏高，请求仲裁庭调减；其三，实际签收方为关联公司，责任主体应进一步核实。</p>
-  <p data-paragraph-id="p-defense2">申请人答辩称：被申请人签收回执和对账邮件已形成完整履约证据链，且被申请人庭审陈述与书面答辩存在差异，不足以否定其付款义务。</p>
-  <p data-paragraph-id="p-defense3">仲裁庭已组织双方围绕合同履行、货物质量、付款节点及违约责任进行了充分举证、质证与辩论。</p>
-  <p data-paragraph-id="p-defense4">本案现已审理终结，依法进入评议和裁决阶段。</p>
+  <h2 data-paragraph-id="sec-defense">四、被申请人答辩及反请求</h2>
+  <p data-paragraph-id="p-defense1">被申请人答辩称：申请人存在部分工程质量问题，且部分签证手续不完备，申请人主张金额明显过高；即便存在欠款，也应扣减质保期内整改费用后再行支付。</p>
+  <p data-paragraph-id="p-defense2">被申请人提出仲裁反请求：1. 请求确认申请人承担整改费用 780,000 元；2. 请求申请人承担因工期延误造成的损失 320,000 元；3. 请求申请人承担反请求仲裁费用。</p>
+  <p data-paragraph-id="p-defense3">被申请人提交的主要证据包括：监理整改通知、现场照片、第三方评估意见、付款台账及会议纪要等。</p>
+  <p data-paragraph-id="p-defense4">申请人对反请求答辩称：整改事项多为正常维保范围，不属于质量缺陷；工期延误系总包交叉施工及设计变更导致，不应由申请人承担责任。</p>
 
   <h2 data-paragraph-id="sec-investigation">五、仲裁庭查明</h2>
-  <p data-paragraph-id="p-inv1">经审理查明：申请人与被申请人签署合同事实清楚，仲裁条款合法有效，本会对本案有管辖权。</p>
-  <p data-paragraph-id="p-inv2">合同明确约定付款义务与违约责任。申请人提交的发货单、签收回执、对账邮件与催款函能够相互印证，证据链条完整。</p>
-  <p data-paragraph-id="p-inv3">签收回执中“型号待进一步验收”仅表明验收流程尚在进行，不能当然推导为全面拒付货款，且被申请人未提交充分退换货或减价证据。</p>
-  <p data-paragraph-id="p-inv4">双方通过电子邮件确认应付货款余额为 1,180,000.00 元。2024 年 1 月 8 日被申请人支付 20,000.00 元后，电子邮件确认应付货款余额仍长期未清偿。</p>
-  <p data-paragraph-id="p-inv5">庭审中被申请人关于质量异议和主体抗辩的陈述存在明显差异，未能形成稳定、一致且有充分证据支持的抗辩体系。</p>
+  <p data-paragraph-id="p-inv1">仲裁庭查明：双方于 2024 年 6 月 18 日签署《机电安装工程分包合同》，合同暂定总价 16,500,000 元，结算方式为“按月进度支付 + 竣工结算 + 质保金留存 5%”。</p>
+  <p data-paragraph-id="p-inv2">工程于 2025 年 11 月完成实质施工并投入试运行。监理单位于 2025 年 12 月 5 日出具《工程验收意见》，确认总体达到合同约定质量标准，但列明个别末端设备需持续调试。</p>
+  <p data-paragraph-id="p-inv3">庭审后，仲裁庭依申请人申请委托北京建审工程咨询有限公司进行结算复核。复核报告确认已完工程对应价款为 15,980,000 元，尚未支付款项为 4,320,000 元。</p>
+  <p data-paragraph-id="p-inv4">对被申请人主张的整改费用，仲裁庭结合整改通知单、签认记录及第三方复核意见，认定其中可归责于申请人的整改费用为 220,000 元，其余证据不足，不予支持。</p>
+  <p data-paragraph-id="p-inv5">关于工期延误损失，被申请人未能就损失金额形成完整证据链，亦未证明延误完全归责于申请人，故其该项主张证据不足。</p>
 
   <h2 data-paragraph-id="sec-analysis">六、仲裁庭意见</h2>
-  <p data-paragraph-id="p-focus-title"><strong>争议焦点一：被申请人是否应支付剩余货款</strong></p>
-  <p data-paragraph-id="p-focus1">仲裁庭认为，申请人已履行主要供货义务，且被申请人对欠款余额已有确认。被申请人未能提交足以否定付款义务的反证，故应支付剩余货款 1,180,000.00 元。</p>
-  <p data-paragraph-id="p-focus-title2"><strong>争议焦点二：违约金是否应予调减</strong></p>
-  <p data-paragraph-id="p-focus2">关于违约金标准，合同约定为未付金额每日万分之五。该比例折合年化约 18.25%，结合交易性质、违约持续期间及申请人实际损失，尚未达到“明显过高”的调减标准，仲裁庭对调减请求不予支持。</p>
-  <p data-paragraph-id="p-focus-title3"><strong>争议焦点三：责任主体认定</strong></p>
-  <p data-paragraph-id="p-focus3">被申请人系合同签署主体，签收回执亦加盖被申请人公章，对账邮件确认人亦为被申请人经办人员。其“关联公司签收”主张证据不足，不影响其合同项下责任承担。</p>
+  <p data-paragraph-id="p-focus-title"><strong>（一）合同效力与结算基础</strong></p>
+  <p data-paragraph-id="p-focus1">双方签署的合同及补充协议系真实意思表示，内容不违反法律、行政法规强制性规定，合法有效。仲裁庭据此以合同约定及复核结算结果作为本案价款认定基础。</p>
+  <p data-paragraph-id="p-focus-title2"><strong>（二）申请人价款请求</strong></p>
+  <p data-paragraph-id="p-focus2">结合结算复核报告与双方付款台账，仲裁庭认定被申请人尚应支付价款 4,320,000 元；扣除可归责于申请人的整改费用 220,000 元后，被申请人仍应向申请人支付 4,100,000 元。</p>
+  <p data-paragraph-id="p-focus-title3"><strong>（三）违约金及反请求处理</strong></p>
+  <p data-paragraph-id="p-focus3">被申请人逾期付款事实成立，应承担相应违约责任。仲裁庭综合合同约定、实际损失及公平原则，将违约金酌定为 280,000 元。被申请人关于工期延误损失的反请求证据不足，不予支持。</p>
 
   <h2 data-paragraph-id="sec-ruling">七、裁决</h2>
-  <p data-paragraph-id="p-ruling1">据此，仲裁庭依据合同约定及相关法律规定，裁决如下：</p>
-  <p data-paragraph-id="p-ruling2">一、被申请人上海贸易有限公司应于本裁决书送达之日起十五日内向申请人北京科技有限公司支付货款人民币 1,180,000.00 元；</p>
-  <p data-paragraph-id="p-ruling3">二、被申请人上海贸易有限公司应于本裁决书送达之日起十五日内向申请人支付逾期付款违约金人民币 20,000.00 元；</p>
-  <p data-paragraph-id="p-ruling4">三、本案仲裁费用人民币 25,000.00 元，由被申请人承担。</p>
-  <p data-paragraph-id="p-ruling5" style="text-align: right">首席仲裁员：王某某</p>
-  <p data-paragraph-id="p-ruling6" style="text-align: right">仲 裁 员：李某某　张某某</p>
-  <p data-paragraph-id="p-ruling7" style="text-align: right">二〇二六年三月十日　北京</p>
+  <p data-paragraph-id="p-ruling1">据此，依据《中华人民共和国民法典》及《北京仲裁委员会仲裁规则》相关规定，仲裁庭裁决如下：</p>
+  <p data-paragraph-id="p-ruling2">（一）被申请人北京京城置业有限公司于本裁决书送达之日起十五日内向申请人北京华远建设工程有限公司支付工程款人民币 4,100,000 元；</p>
+  <p data-paragraph-id="p-ruling3">（二）被申请人北京京城置业有限公司于本裁决书送达之日起十五日内向申请人北京华远建设工程有限公司支付逾期付款违约金人民币 280,000 元；</p>
+  <p data-paragraph-id="p-ruling4">（三）驳回申请人的其他仲裁请求及被申请人的全部仲裁反请求。</p>
+  <p data-paragraph-id="p-ruling5">如未按本裁决确定的期间履行给付义务，应依照《中华人民共和国民事诉讼法》有关规定加倍支付迟延履行期间的债务利息。</p>
+  <p data-paragraph-id="p-ruling6">本案仲裁费人民币 186,500 元，由申请人承担 26,500 元，被申请人承担 160,000 元。申请人已预交仲裁费，被申请人应于履行上述款项时一并向申请人支付其应承担部分。</p>
+  <p data-paragraph-id="p-ruling7" style="text-align: right">首席仲裁员：周某某　仲裁员：张某某　仲裁员：李某某　　二〇二六年六月十八日　北京</p>
 `;
 
 export const MOCK_CHECK_GROUPS = [
@@ -341,27 +349,27 @@ export const MOCK_CHECK_GROUPS = [
     id: 'cg1',
     title: '格式与术语',
     items: [
-      { id: 'c1', type: 'format', desc: '案号格式建议核对是否与仲裁委登记系统一致', paragraphId: 'p-caseno', paragraphLabel: '案号', severity: 'warning', targetText: '（2026）京仲案字第 0188 号' },
-      { id: 'c2', type: 'format', desc: '裁决主文金额需与事实查明段金额严格一致', paragraphId: 'p-ruling2', paragraphLabel: '裁决主文第一项', severity: 'error', targetText: '1,180,000.00 元' },
-      { id: 'c3', type: 'format', desc: '"本委"与"仲裁庭"称谓需全文统一', paragraphId: 'p-claim1', paragraphLabel: '仲裁请求首段', severity: 'warning', targetText: '申请人请求仲裁庭裁决如下' }
+      { id: 'c1', type: 'format', desc: '案号格式建议核对是否与仲裁委登记系统一致', paragraphId: 'p-caseno', paragraphLabel: '案号', severity: 'warning', targetText: '（2026）京仲裁字第 0321 号' },
+      { id: 'c2', type: 'format', desc: '裁决主文条款序号与标点需统一', paragraphId: 'p-ruling2', paragraphLabel: '裁决条款第一项', severity: 'error', targetText: '（一）被申请人北京京城置业有限公司' },
+      { id: 'c3', type: 'format', desc: '“本会”“仲裁庭”称谓应保持一致', paragraphId: 'p-claim1', paragraphLabel: '案件受理首段', severity: 'warning', targetText: '本会根据申请人提交的《仲裁申请书》' }
     ]
   },
   {
     id: 'cg2',
     title: '逻辑与论证',
     items: [
-      { id: 'c4', type: 'logic', desc: '争议焦点二应引用《民法典》第585条关于违约金调整的裁判依据', paragraphId: 'p-focus2', paragraphLabel: '争议焦点二', severity: 'error', targetText: '折合年化约 18.25%' },
-      { id: 'c5', type: 'logic', desc: '被申请人质量抗辩的庭审陈述变化需更充分说理', paragraphId: 'p-inv5', paragraphLabel: '查明·庭审陈述', severity: 'warning', targetText: '存在明显差异' },
-      { id: 'c6', type: 'logic', desc: '主体认定需引用签收回执和对账邮件具体内容', paragraphId: 'p-focus3', paragraphLabel: '争议焦点三', severity: 'warning', targetText: '签收回执亦加盖被申请人公章' }
+      { id: 'c4', type: 'logic', desc: '价款计算过程建议补充中间推导表达', paragraphId: 'p-focus2', paragraphLabel: '价款请求', severity: 'error', targetText: '扣除可归责于申请人的整改费用 220,000 元后' },
+      { id: 'c5', type: 'logic', desc: '工期延误损失驳回理由可增加因果关系说明', paragraphId: 'p-inv5', paragraphLabel: '查明·延误损失', severity: 'warning', targetText: '未能就损失金额形成完整证据链' },
+      { id: 'c6', type: 'logic', desc: '违约金酌定标准建议补充对比依据', paragraphId: 'p-focus3', paragraphLabel: '仲裁庭意见·违约金', severity: 'warning', targetText: '将违约金酌定为 280,000 元' }
     ]
   },
   {
     id: 'cg3',
     title: '证据引用',
     items: [
-      { id: 'c7', type: 'evidence', desc: '签收回执"型号待进一步验收"注明应在查明段完整引述', paragraphId: 'p-inv3', paragraphLabel: '查明·签收回执', severity: 'warning', targetText: '型号待进一步验收' },
-      { id: 'c8', type: 'evidence', desc: '对账邮件的发送人、收件人岗位信息建议补充', paragraphId: 'p-inv4', paragraphLabel: '查明·对账邮件', severity: 'warning', targetText: '电子邮件确认应付货款余额' },
-      { id: 'c9', type: 'evidence', desc: '催款函签收时间与利息起算关联需在说理段明确', paragraphId: 'p-fact3', paragraphLabel: '事实·催告送达', severity: 'error', targetText: '快递签收记录显示被申请人已于次日签收' }
+      { id: 'c7', type: 'evidence', desc: '鉴定委托与鉴定意见形成过程建议补充日期闭环', paragraphId: 'p-inv3', paragraphLabel: '查明·鉴定委托', severity: 'warning', targetText: '委托北京建审工程咨询有限公司进行结算复核' },
+      { id: 'c8', type: 'evidence', desc: '整改费用认定依据建议补充证据编号', paragraphId: 'p-inv4', paragraphLabel: '查明·整改费用', severity: 'warning', targetText: '整改通知单、签认记录及第三方复核意见' },
+      { id: 'c9', type: 'evidence', desc: '申请人证据清单建议补齐每项证据页码', paragraphId: 'p-fact3', paragraphLabel: '事实·申请人证据', severity: 'error', targetText: '申请人提交的主要证据包括' }
     ]
   }
 ];
@@ -373,11 +381,11 @@ export const COMMENT_FILTERS = [
 ];
 
 export const MOCK_COMMENTS = [
-  { id: 'cm1', title: '补充违约金裁判依据', content: '争议焦点二应引用《民法典》第五百八十五条第二款关于违约金调整的规定，增强说理充分性。', status: 'pending', paragraphId: 'p-focus2', author: '张仲裁员', createdAt: '2026-03-08 14:30', selectedText: '折合年化约 18.25%' },
-  { id: 'cm2', title: '统一主体全称', content: '"申请人"首次出现时建议写全称"申请人北京科技有限公司"，此后可简称"申请人"。', status: 'resolved', paragraphId: 'p-applicant', author: '李秘书', createdAt: '2026-03-07 10:15', selectedText: '申请人北京科技有限公司' },
-  { id: 'cm3', title: '签收回执引述不完整', content: '查明段引述签收回执时应包含"型号待进一步验收"这一关键注明，该内容与被申请人质量抗辩直接相关。', status: 'pending', paragraphId: 'p-inv3', author: '张仲裁员', createdAt: '2026-03-08 15:00', selectedText: '型号待进一步验收' },
-  { id: 'cm4', title: '对账邮件细节待补充', content: '对账邮件的发送人岗位、收件人确认回复内容建议在查明段补充，增强证据采信说服力。', status: 'pending', paragraphId: 'p-inv4', author: '王首席', createdAt: '2026-03-09 09:20', selectedText: '电子邮件确认应付货款余额' },
-  { id: 'cm5', title: '仲裁费用金额核实', content: '仲裁费用25,000元需与立案缴费凭证核对，确认金额准确后再写入裁决主文。', status: 'pending', paragraphId: 'p-ruling4', author: '李秘书', createdAt: '2026-03-09 11:00', selectedText: '仲裁费用人民币 25,000.00 元' }
+  { id: 'cm1', title: '价款计算展示再清晰', content: '建议在“价款请求”段落补一行“应付=复核余额-整改费用”的计算式，便于客户侧快速看懂。', status: 'pending', paragraphId: 'p-focus2', author: '张仲裁员', createdAt: '2026-03-08 14:30', selectedText: '仍应向申请人支付 4,100,000 元' },
+  { id: 'cm2', title: '首部信息已接近示范', content: '首部行文顺序与示范一致，建议继续保持“申请人/被申请人”分块排版与全角间隔。', status: 'resolved', paragraphId: 'p-applicant', author: '李秘书', createdAt: '2026-03-07 10:15', selectedText: '北京华远建设工程有限公司' },
+  { id: 'cm3', title: '鉴定流程可补充送达', content: '可在鉴定段补充“鉴定意见已向双方送达并组织质证”一句，程序性更完整。', status: 'pending', paragraphId: 'p-inv3', author: '张仲裁员', createdAt: '2026-03-08 15:00', selectedText: '结算复核' },
+  { id: 'cm4', title: '反请求驳回理由可再展开', content: '“证据不足”建议加一行说明“未形成损失金额、因果关系、可归责性闭环”。', status: 'pending', paragraphId: 'p-focus3', author: '王首席', createdAt: '2026-03-09 09:20', selectedText: '反请求证据不足，不予支持' },
+  { id: 'cm5', title: '裁决费用条款完整', content: '仲裁费承担条款已经完整，可保持“已预交+应返还/补付”的表达方式。', status: 'pending', paragraphId: 'p-ruling6', author: '李秘书', createdAt: '2026-03-09 11:00', selectedText: '本案仲裁费人民币 186,500 元' }
 ];
 
 export const MOCK_AI_CANDIDATES: Record<string, string> = {

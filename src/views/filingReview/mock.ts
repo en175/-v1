@@ -241,7 +241,7 @@ export const mockMaterials = [
 ];
 
 export const mockVerifyData = {
-  caseNo: '（2026）穗仲案字第01876号',
+  caseNo: '（2026）京仲裁字第0321号',
   caseType: '买卖合同纠纷',
   filingChannel: '线上立案',
   applicant: '北京科技有限公司',

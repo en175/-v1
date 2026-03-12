@@ -7,81 +7,182 @@ export const ANALYSIS_METRICS = [
 ];
 
 export const MOCK_CASE_SUMMARY = {
-  caseNo: '（2024）京仲案字第01234号',
-  parties: '申请人：北京科技 / 被申请人：上海贸易',
-  secretary: '王小明',
-  hearingDate: '2024-03-01'
+  caseNo: '（2026）京仲裁字第0321号',
+  parties: '申请人：北京华远建设工程有限公司 / 被申请人：北京京城置业有限公司',
+  secretary: '陈晓岚',
+  hearingDate: '2026-04-12'
 };
 
 export const MOCK_MATERIALS_REVIEW = [
   {
     id: 'r1',
-    title: '裁决书草稿_v2.docx',
+    title: '裁决书（审理稿）v5.docx',
     type: 'docx',
     category: '文书草稿',
-    page: 18,
-    size: '356KB',
-    updatedAt: '2024-03-03 09:20',
-    previewText: '本案争议焦点主要围绕货款支付责任、质量抗辩成立与否及违约金调整标准展开。'
+    page: 27,
+    size: '612KB',
+    updatedAt: '2026-06-15 16:20',
+    previewText: '本案围绕工程结算余额、整改费用归责、违约金酌定及反请求是否成立展开审查。'
   },
   {
     id: 'r2',
-    title: '庭审笔录（第一、二次）.pdf',
+    title: '庭审笔录（2026-04-12）.pdf',
     type: 'pdf',
     category: '庭审材料',
-    page: 45,
-    size: '2.6MB',
-    updatedAt: '2024-03-02 18:30',
-    previewText: '审理要点：双方确认供货事实，围绕质量异议通知时间与违约金比例发生实质争议。'
+    page: 58,
+    size: '3.8MB',
+    updatedAt: '2026-04-13 09:10',
+    previewText: '审理要点：双方确认合同真实存在与工程已完工；争议集中于整改费用金额、违约金幅度及反请求损失证据。'
   },
   {
     id: 'r3',
-    title: '证据目录与页码对照.xlsx',
+    title: '工程结算复核报告.xlsx',
     type: 'xlsx',
-    category: '证据清单',
-    page: 6,
-    size: '148KB',
-    updatedAt: '2024-03-01 16:05',
-    previewText: '证据1-1 购销合同；证据2-3 发货签收单；证据4-2 对账邮件；证据6-1 质量异议说明。'
+    category: '鉴定/复核',
+    page: 12,
+    size: '324KB',
+    updatedAt: '2026-05-28 14:05',
+    previewText: '复核结论：已完工程对应价款 15,980,000 元，尚未支付款项 4,320,000 元。'
   },
   {
     id: 'r4',
-    title: '合同签章页照片.jpg',
+    title: '监理整改通知与签认记录.jpg',
     type: 'image',
     category: '影像证据',
-    page: 1,
-    size: '892KB',
-    updatedAt: '2024-02-28 21:14',
-    previewText: '可见合同双方盖章位置及签章日期，章体边缘存在轻微模糊。'
+    page: 3,
+    size: '1.2MB',
+    updatedAt: '2026-05-10 21:14',
+    previewText: '记录整改项分布与签认情况，其中可归责于申请人的整改事项已单独标注。'
   },
   {
     id: 'r5',
-    title: '质证录音（第二次庭审）.mp3',
+    title: '质证录音（关键争点）.mp3',
     type: 'audio',
     category: '庭审音频',
     page: 1,
-    size: '5.1MB',
-    updatedAt: '2024-03-01 19:10',
-    previewText: '录音内容涵盖质量异议通知时点、对账确认过程及违约金调减请求。'
+    size: '6.4MB',
+    updatedAt: '2026-04-12 19:10',
+    previewText: '录音涵盖“合同效力—实际履行—整改归责—反请求证据链”四组焦点交叉质证。'
   },
   {
     id: 'r6',
-    title: '供货验收过程视频.mp4',
+    title: '工程验收与试运行视频.mp4',
     type: 'video',
     category: '影像证据',
     page: 1,
-    size: '16.3MB',
-    updatedAt: '2024-02-27 11:42',
-    previewText: '视频记录了批次货物开箱与抽检过程，可用于交叉核对型号争议。'
+    size: '18.7MB',
+    updatedAt: '2026-01-06 11:42',
+    previewText: '视频显示工程完成后试运行状态，可用于佐证“已实际履行”的客观事实。'
   }
 ];
 
 export const REVIEW_MODULES = [
-  { key: 'coreClaim', label: '核心诉求', paragraphId: 'logic' },
-  { key: 'undisputedFact', label: '无争议事实认定', paragraphId: 'fact' },
-  { key: 'justiceFocus', label: '核心正义焦点分析', paragraphId: 'discretion' },
-  { key: 'riskHint', label: '潜在疑点与矛盾提示', paragraphId: 'p3' }
+  { key: 'coreClaim', label: '核心诉求', paragraphId: 'p-ruling1' },
+  { key: 'undisputedFact', label: '无争议事实认定', paragraphId: 'p-inv1' },
+  { key: 'justiceFocus', label: '核心争议焦点分析', paragraphId: 'p-focus3' }
 ];
+
+export const REVIEW_MODULE_DIALOGS = {
+  coreClaim: {
+    title: '核心诉求',
+    bullets: [
+      '请求被申请人支付工程款人民币 4,200,000 元',
+      '请求被申请人支付逾期付款违约金人民币 460,000 元（暂计至 2026-01-31）',
+      '请求被申请人承担全部仲裁费用',
+      '反请求部分：被申请人主张整改费 780,000 元及延期损失 320,000 元'
+    ]
+  },
+  undisputedFact: {
+    title: '无争议事实认定',
+    sections: [
+      {
+        heading: '合同真实性与仲裁条款无异议',
+        content: '双方确认《机电安装工程分包合同》及补充协议真实有效，合同约定争议提交北京仲裁委员会仲裁。',
+        quote: '庭审原话：“合同是双方签的，真实性没有争议，仲裁条款我们认可。”'
+      },
+      {
+        heading: '工程已实际完工并投入试运行',
+        content: '双方均认可工程已于 2025 年 11 月完成实质施工，监理单位出具验收意见并进入试运行阶段。',
+        quote: '庭审原话：“项目已完成并投入试运行，这一点双方没有异议。”'
+      },
+      {
+        heading: '尚存在未支付工程价款',
+        content: '双方确认存在未结工程款，仅对具体余额与扣减项目存在争议。',
+        quote: '庭审原话：“确实还有款项未结，分歧在于整改费和扣减口径。”'
+      },
+      {
+        heading: '仲裁程序合法且未提出回避',
+        content: '双方对仲裁庭组成、证据交换及庭审程序均未提出异议，亦未提出回避申请。',
+        quote: '庭审原话：“程序方面没有意见，也不申请回避。”'
+      }
+    ]
+  },
+  justiceFocus: {
+    title: '核心争议焦点分析',
+    focuses: [
+      {
+        question: '1. 结算余额应如何认定？',
+        applicant: {
+          view: '申请人主张以复核结算为准，尚欠工程款 4,320,000 元。',
+          evidence: [
+            '工程结算复核报告：确认已完工程对应价款与未付款余额。',
+            '付款台账与对账函：显示被申请人未在约定期限内完成尾款支付。'
+          ],
+          statement: '“工程量与结算依据都在复核报告里，未付款项有完整台账。”'
+        },
+        respondent: {
+          view: '被申请人主张应先扣减整改费用，申请人请求金额偏高。',
+          evidence: [
+            '监理整改通知：列明若干整改项目。',
+            '现场签认材料：仅部分项目有完整签认链条。'
+          ],
+          statement: '“有整改费用应先扣减，但具体金额需按签认确认。”'
+        },
+        conclusion: '仲裁庭采纳“复核余额 + 证据可归责扣减”路径，认定可扣减整改费用 220,000 元。'
+      },
+      {
+        question: '2. 违约金标准是否需要调减？',
+        applicant: {
+          view: '申请人主张按合同约定继续计算逾期付款违约金。',
+          evidence: [
+            '合同第 8 条约定违约金计算规则。',
+            '催告函及送达凭证：证明被申请人持续逾期。'
+          ],
+          statement: '“约定明确且已催告，应按合同承担违约责任。”'
+        },
+        respondent: {
+          view: '被申请人主张约定标准偏高，请求仲裁庭酌情调减。',
+          evidence: [
+            '企业经营压力说明：主张现金流困难。',
+            '未提交完整损失对比测算，调减理由证明力度不足。'
+          ],
+          statement: '“希望结合实际经营情况酌情降低违约金。”'
+        },
+        conclusion: '仲裁庭综合违约持续时间、损失程度与公平原则，将违约金酌定为 280,000 元。'
+      },
+      {
+        question: '3. 被申请人反请求是否成立？',
+        applicant: {
+          view: '申请人认为反请求缺乏完整损失证据链，延期非单方原因造成。',
+          evidence: [
+            '总包交叉施工记录：存在外部工期影响因素。',
+            '设计变更通知：显示部分节点非申请人可控。'
+          ],
+          statement: '“延期与整改并非全部由我方造成，反请求证据不完整。”'
+        },
+        respondent: {
+          view: '被申请人坚持要求承担整改费和延期损失。',
+          evidence: [
+            '整改通知与会议纪要：证明存在整改事实。',
+            '未形成“损失金额—因果关系—可归责性”完整证明闭环。'
+          ],
+          statement: '“我们有损失，但金额计算和责任比例希望庭上裁量。”'
+        },
+        conclusion: '仲裁庭支持可核实的整改扣减，反请求其余部分因证据不足不予支持。'
+      }
+    ]
+  }
+};
 
 export const MOCK_HEARING_RECORDS = [
   {
@@ -109,78 +210,67 @@ export const MOCK_HEARING_RECORDS = [
 export const MODULE_INSIGHTS = {
   coreClaim: {
     title: '核心诉求审查建议',
-    summary: '核对诉请金额口径、请求事项边界与裁判主文一致性，避免超范围裁决。',
+    summary: '建议以“诉请金额—结算复核—可扣减项目—最终支持金额”四步结构审查主文，确保裁决金额推导可复核。',
     tips: [
-      '核对主文金额与请求事项是否一一对应',
-      '检查是否遗漏“利息截止日”与“承担方式”表述',
-      '确认请求事项排序与审理查明事实一致'
+      '主文第一项建议明确“4,320,000 - 220,000 = 4,100,000 元”计算来源',
+      '违约金建议继续保留“酌定依据 + 金额结论”双句表达',
+      '费用承担条款保留“已预交 + 补付”说明，避免执行争议'
     ]
   },
   undisputedFact: {
     title: '无争议事实认定建议',
-    summary: '先行固化双方共同确认事实，减少后续说理冗余并提升裁决结构清晰度。',
+    summary: '建议先固化“合同真实、工程完工、存在欠款、程序合法”四项共识事实，再进入争议审查可显著提升说理清晰度。',
     tips: [
-      '优先收录双方庭审已明确认可的履约节点',
-      '将争议事实与无争议事实分段写明',
-      '对来源证据编号进行统一标注'
+      '每项无争议事实后附一条庭审原话，增强可验证性',
+      '将“认可事实”与“争议事实”在标题层级上彻底分离',
+      '无争议事实建议统一标注来源页码（庭审笔录/复核报告）'
     ]
   },
   justiceFocus: {
-    title: '核心正义焦点分析建议',
-    summary: '围绕公平与诚信原则，评估违约责任分配、举证负担与利益衡量是否充分。',
+    title: '核心争议焦点分析建议',
+    summary: '建议采用“申请人主张—被申请人主张—证据支撑—庭审陈述—焦点结论”五段式，完整呈现对抗过程与裁断理由。',
     tips: [
-      '补充违约金调减标准与裁量边界',
-      '明确质量抗辩未被采信的理由链条',
-      '说明责任比例与损失证据之间的对应关系'
-    ]
-  },
-  riskHint: {
-    title: '潜在疑点与矛盾提示',
-    summary: '对金额、时间线、主体信息进行冲突复核，避免审签后被指出程序或事实瑕疵。',
-    tips: [
-      '诉请本金与分项汇总存在差异需二次核对',
-      '申请日期与合同签署日期先后关系需复核',
-      '主体简称与统一社会信用代码应保持一致'
+      '焦点一突出“结算复核 + 可归责扣减”的推导闭环',
+      '焦点二突出“合同约定 + 公平原则”的违约金酌定依据',
+      '焦点三突出“证据链不足”对应“反请求不支持”的裁断逻辑'
     ]
   }
 };
 
-export const REVIEW_USEFUL_TOOLS = [
-  { id: 't1', name: '证据一致性核对', value: '3项待复核', level: 'warning' },
-  { id: 't2', name: '程序节点完整性', value: '已覆盖', level: 'success' },
-  { id: 't3', name: '裁判主文风险', value: '1项高风险', level: 'danger' },
-  { id: 't4', name: '审签前清单', value: '剩余2项', level: 'info' }
-];
-
 export const MOCK_ANALYSIS_RESULTS = [
   { 
     metric: 'logic', 
-    score: 95, 
-    desc: '逻辑链条完整，请求权基础引用准确。', 
+    score: 93, 
+    desc: '裁决已形成“查明—意见—主文”闭环，金额推导路径完整。', 
+    detail: '已覆盖结算复核、整改扣减与主文金额衔接，建议补充一行计算式增强执行清晰度。',
     status: 'success' 
   },
   { 
     metric: 'focus', 
-    score: 88, 
-    desc: '主要争议焦点已覆盖，但关于违约金调整的论述略显单薄。', 
-    status: 'warning' 
-  },
-  { 
-    metric: 'discretion', 
-    score: 92, 
-    desc: '自由裁量部分引用了相关指导案例，说理充分。', 
+    score: 91, 
+    desc: '三大争议焦点已覆盖，双方主张和证据对抗关系清晰。', 
+    detail: '建议在“反请求不支持”处再补充“损失金额、因果关系、可归责性”三要素说明。',
     status: 'success' 
   },
   { 
+    metric: 'discretion', 
+    score: 89, 
+    desc: '违约金酌定逻辑基本充分，裁量边界表达尚可进一步细化。', 
+    detail: '可增加“逾期期间 + 实际损失 + 行业惯例”三项并列说明，提高说服力。',
+    status: 'warning' 
+  },
+  { 
     metric: 'fact', 
-    score: 90, 
-    desc: '事实认定部分与庭审笔录一致。', 
+    score: 94, 
+    desc: '事实认定与庭审笔录、复核报告、整改签认材料总体一致。', 
+    detail: '无争议事实可单列小标题并追加庭审原话，可进一步提升文书可读性。',
     status: 'success' 
   },
   { 
     metric: 'standard', 
-    score: 98, 
-    desc: '符合裁决书制作规范。', 
+    score: 92, 
+    desc: '案号、裁决事项、履行期限与费用承担条款已符合仲裁文书规范。', 
+    detail: '建议将“二〇二六年六月十八日”与落款行距再统一，增强版式一致性。',
     status: 'success' 
   }
 ];

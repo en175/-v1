@@ -3,18 +3,16 @@
     <LeftCasePanel
       :summary="summary"
       :materials="materials"
-      :hearingRecords="hearingRecords"
       :reviewModules="reviewModules"
+      :moduleDialogs="moduleDialogs"
       :activeModuleKey="activeModuleKey"
       @select-module="handleSelectModule"
     />
-    <DocEditor ref="editorRef" v-model="content" />
+    <DocEditor v-model="content" :sections="sections" />
     <RightAiAnalysis
       :results="analysisResults"
       :activeModuleKey="activeModuleKey"
       :moduleInsights="moduleInsights"
-      :usefulTools="usefulTools"
-      @locate="handleLocate"
     />
   </div>
 </template>
@@ -29,39 +27,24 @@ import {
   mockCaseSummary,
   mockMaterials,
   mockAnalysisResults,
-  mockHearingRecords,
   mockReviewModules,
   mockModuleInsights,
-  mockReviewUsefulTools
+  mockReviewModuleDialogs
 } from './mock';
+import { DOC_SECTIONS, MOCK_EDITOR_CONTENT } from '../docWriter/config';
 
 const summary = mockCaseSummary;
 const materials = mockMaterials;
-const hearingRecords = mockHearingRecords;
 const reviewModules = mockReviewModules;
+const moduleDialogs = mockReviewModuleDialogs;
 const moduleInsights = mockModuleInsights;
-const usefulTools = mockReviewUsefulTools;
 const analysisResults = mockAnalysisResults;
 const activeModuleKey = ref(reviewModules[0]?.key || 'coreClaim');
+const sections = DOC_SECTIONS;
 
-const editorRef = ref(null);
-const content = ref(`
-  <h1 style="text-align: center">仲裁裁决书</h1>
-  <p data-paragraph-id="p1">本案现已审理终结。仲裁庭现对本案的事实认定及裁决意见陈述如下：</p>
-  <p data-paragraph-id="fact">关于货款金额的认定，仲裁庭核对了申请人提交的《购销合同》及《发货单》。虽然被申请人主张货物存在质量瑕疵，但并未在合同约定的验收期内提出异议。</p>
-  <p data-paragraph-id="p3">综上，仲裁庭对申请人主张的货款 1,200,000.00 元予以支持。</p>
-  <p data-paragraph-id="discretion">关于违约金的调整，被申请人提出的标准调整请求，仲裁庭经查明合同约定的标准（日万分之五）符合行业惯例，且被申请人违约行为显著。</p>
-  <p data-paragraph-id="logic">综上所述，申请人的仲裁请求具有事实和法律依据，本庭予以支持。</p>
-`);
-
-const handleLocate = (key) => {
-  if (editorRef.value) {
-    editorRef.value.scrollToParagraph(key);
-  }
-};
+const content = ref(MOCK_EDITOR_CONTENT);
 
 const handleSelectModule = (module) => {
   activeModuleKey.value = module.key;
-  handleLocate(module.paragraphId);
 };
 </script>

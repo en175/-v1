@@ -20,10 +20,10 @@
 
 | 模块 | 路由 | 状态 | 说明 |
 | --- | --- | --- | --- |
-| 立案审核 | `/filing-review` | ✅ 已完成深度优化 | 材料清单（点击预览）、案件信息核验、案情概览、建议结论 |
-| 智能阅卷 | `/dossier-reading` | ✅ 已完成深度优化 | 请求导航、卷宗材料预览、案件摘要+时间轴、请求要件+事实证据+抗辩对照、查看原文 |
-| 文书写作助手 | `/doc-writer` | ✅ 已完成深度优化（第三轮） | 模块导航条（7 模块跳转+滚动跟随）、手风琴式证据材料面板（提交方筛选、文件名完整显示）、证据直接插入（光标处+插入后高亮 5 秒）、校对/批注 Overlay 差异化高亮（红/橙/黄）、批注双向联动（文中持久标记+点击互跳）、AI 模块感知、浮动工具栏（5 项+批注）、自动保存、Word 导入导出、Toast 提示 |
-| 文书审核 | `/doc-review` | 🔲 基础版 | 待后续优化 |
+| 立案审核 | `/filing-review` | ✅ 已完成深度优化 | 材料清单点击预览、案件信息核验、问题归纳与建议结论 |
+| 智能阅卷 | `/dossier-reading` | ✅ 已完成深度优化 | 请求导航、卷宗材料预览、案件摘要与时间轴、请求要件-事实证据-抗辩对照 |
+| 文书写作助手 | `/doc-writer` | ✅ 已完成深度优化 | 7 段模块导航、证据直接插入、校对/批注双向联动、Word 导入导出、证据材料文件预览弹窗（PDF 查看器风格） |
+| 文书审核 | `/doc-review` | ✅ 已完成深度优化 | 裁决书正文与写作助手同源、编辑器导航条、案件材料文件预览、庭审记录提取三大模块弹窗、真实化审查建议与评分 |
 
 ## 技术栈
 
@@ -40,6 +40,7 @@ npm install
 npm run dev
 # 默认访问 http://localhost:5173/
 # 文书写作助手：http://localhost:5173/doc-writer
+# 文书审核：http://localhost:5173/doc-review
 ```
 
 ## 关键目录
@@ -54,12 +55,18 @@ src/
       config.ts        # 模块导航、AI 任务、证据材料、校对、批注配置
       mock.ts          # mock 数据导出
       components/
-        LeftMaterialPanel.vue     # 手风琴式证据材料面板+提交方筛选
+        LeftMaterialPanel.vue     # 手风琴式证据材料面板+提交方筛选+文件预览
         RightPanel.vue            # AI 助手+校对检查+人工批注（双向联动）
         FloatingSelectionToolbar.vue  # 浮动工具栏（5 项 AI+批注）
         AiWritePopover.vue        # AI 自由输入弹窗
         CandidateResultCard.vue   # AI 生成结果卡片
     docReview/         # 文书审核
+      index.vue        # 主页面（三栏）
+      config.ts        # 审核模块、弹窗内容、评分、建议数据
+      components/
+        LeftCasePanel.vue         # 案件材料+文件预览+庭审记录提取模块弹窗
+        DocEditor.vue             # 审核编辑区（复用 EditorArea）
+        RightAiAnalysis.vue       # 模块审查建议+智能分析评分
   components/
     editor/            # EditorArea.vue（Tiptap+模块导航+Overlay 高亮+Word 按钮）
     ToastMessage.vue   # 全局 Toast 消息组件
@@ -75,6 +82,6 @@ PRD/                   # 产品需求文档
 
 ## 当前状态
 
-- 已完成：立案审核、智能阅卷、文书写作助手（三轮优化）
-- 待优化：文书审核模块
-- 已知问题：`npm run build` 存在历史 TS 类型问题（不影响 dev 运行）
+- 已完成：立案审核、智能阅卷、文书写作助手、文书审核
+- 全局案号已统一：`（2026）京仲裁字第0321号`
+- 构建状态：`npm run build:netlify` 可通过（存在 chunk size 提示，不影响功能）

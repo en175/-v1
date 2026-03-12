@@ -284,7 +284,7 @@ export const mockMaterials: MaterialItem[] = [
     fileSize: '4.2 MB',
     previewContent: `庭审笔录
 
-案号：（2024）穗仲网字第00871号
+案号：（2026）京仲裁字第0321号
 案由：教育培训合同纠纷
 开庭时间：2024年9月8日上午9:30
 开庭地点：广州仲裁委员会第三仲裁庭
@@ -324,7 +324,7 @@ export const mockMaterials: MaterialItem[] = [
 ];
 
 export const mockCaseInfo: CaseInfo = {
-  caseNo: '（2024）穗仲网字第00871号',
+  caseNo: '（2026）京仲裁字第0321号',
   caseReason: '教育培训合同纠纷',
   claimant: '徐微',
   respondent: '牡丹江市乐博特科技有限公司',
@@ -333,7 +333,7 @@ export const mockCaseInfo: CaseInfo = {
 };
 
 export const mockCaseSummary: CaseSummaryItem[] = [
-  { label: '案号', value: '（2024）穗仲网字第00871号' },
+  { label: '案号', value: '（2026）京仲裁字第0321号' },
   { label: '案由', value: '教育培训合同纠纷' },
   { label: '申请人', value: '徐微' },
   { label: '被申请人', value: '牡丹江市乐博特科技有限公司' },
