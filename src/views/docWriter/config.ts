@@ -286,54 +286,54 @@ export const MOCK_AI_MSGS = [
 ];
 
 export const MOCK_EDITOR_CONTENT = `
-  <h1 style="text-align: center">裁 决 书</h1>
-  <p data-paragraph-id="p-caseno" style="text-align: center">（2026）京仲裁字第01876号</p>
+  <h1 style="text-align: center">北京仲裁委员会裁决书</h1>
+  <p data-paragraph-id="p-caseno" style="text-align: right">（2026）京仲案字第 0188 号</p>
 
   <h2 data-paragraph-id="sec-header">一、首部</h2>
-  <p data-paragraph-id="p-applicant"><strong>申请人：</strong>北京科技有限公司，住所地北京市朝阳区某街道101号。法定代表人王某，执行董事兼总经理。</p>
-  <p data-paragraph-id="p-agent1"><strong>委托代理人：</strong>李某，北京某律师事务所律师。</p>
-  <p data-paragraph-id="p-respondent"><strong>被申请人：</strong>上海贸易有限公司，住所地上海市浦东新区某路200号。法定代表人赵某，总经理。</p>
+  <p data-paragraph-id="p-applicant"><strong>申 请 人：</strong>北京科技有限公司。住所地北京市朝阳区某道 XXX 号。法定代表人王某，执行董事。委托代理人李某，北京某律师事务所律师。</p>
+  <p data-paragraph-id="p-agent1"><strong>被申请人：</strong>上海贸易有限公司。住所地上海市浦东新区某路 200 号。法定代表人赵某，总经理。委托代理人周某，上海某律师事务所律师。</p>
+  <p data-paragraph-id="p-respondent">北京仲裁委员会（以下简称本会）根据申请人提交的仲裁申请书及相关合同中的仲裁条款，受理本案并依法组成仲裁庭进行审理。</p>
 
   <h2 data-paragraph-id="sec-claims">二、仲裁请求</h2>
-  <p data-paragraph-id="p-claim1">申请人向本委提出如下仲裁请求：</p>
-  <p data-paragraph-id="p-claim2">1. 裁决被申请人向申请人支付货款人民币 1,180,000.00 元；</p>
-  <p data-paragraph-id="p-claim3">2. 裁决被申请人向申请人支付逾期付款违约金人民币 20,000.00 元；</p>
-  <p data-paragraph-id="p-claim4">3. 裁决本案仲裁费用由被申请人承担。</p>
+  <p data-paragraph-id="p-claim1">申请人请求仲裁庭裁决如下：</p>
+  <p data-paragraph-id="p-claim2">1. 被申请人向申请人北京科技有限公司支付货款人民币 1,180,000.00 元；</p>
+  <p data-paragraph-id="p-claim3">2. 被申请人向申请人支付逾期付款违约金人民币 20,000.00 元；</p>
+  <p data-paragraph-id="p-claim4">3. 被申请人承担本案仲裁费用。</p>
 
   <h2 data-paragraph-id="sec-facts">三、案件事实</h2>
-  <p data-paragraph-id="p-fact1">申请人诉称：2023年12月1日，申请人与被申请人签订《购销合同》（合同编号：BJ2023-1201），约定由申请人向被申请人供应电子元器件一批，合同总价款人民币 1,200,000.00 元，付款期限为被申请人收货验收后30日内一次性支付。</p>
-  <p data-paragraph-id="p-fact2">申请人已于 2023年12月8日 完成全部货物交付，被申请人经办人在签收回执上签字确认，载明"货物数量与合同一致，型号待进一步验收"。</p>
-  <p data-paragraph-id="p-fact3">被申请人于 2024年1月8日 支付货款人民币 20,000.00 元，此后经申请人多次催告，被申请人未再支付剩余货款 1,180,000.00 元。申请人于 2024年1月10日 发出书面催款函，快递签收记录显示被申请人已于次日签收。</p>
+  <p data-paragraph-id="p-fact1">申请人与被申请人于 2023 年 12 月 1 日签订《购销合同》，约定由申请人向被申请人供应电子元器件，合同总价款人民币 1,200,000.00 元，付款期限为收货验收后 30 日内一次性支付。</p>
+  <p data-paragraph-id="p-fact2">申请人于 2023 年 12 月 8 日完成交付，被申请人经办人在签收回执上签字并加盖公章，回执记载“货物数量与合同一致，型号待进一步验收”。</p>
+  <p data-paragraph-id="p-fact3">被申请人于 2024 年 1 月 8 日支付货款人民币 20,000.00 元。此后，申请人于 2024 年 1 月 10 日发出书面催款函，快递签收记录显示被申请人已于次日签收，但剩余货款未付。</p>
 
-  <h2 data-paragraph-id="sec-defense">四、被申请人答辩</h2>
-  <p data-paragraph-id="p-defense1">被申请人辩称：</p>
-  <p data-paragraph-id="p-defense2">1. 到货后发现约 20% 货物型号与合同约定不符，被申请人已在签收后 3 日内书面通知申请人，构成有效质量异议；</p>
-  <p data-paragraph-id="p-defense3">2. 合同约定违约金标准为未付金额每日万分之五，该比例明显过高，请求仲裁庭酌情调减；</p>
-  <p data-paragraph-id="p-defense4">3. 实际签收方为被申请人关联公司，并非答辩书落款主体，请求仲裁庭明确责任承担方。</p>
+  <h2 data-paragraph-id="sec-defense">四、双方主张与答辩</h2>
+  <p data-paragraph-id="p-defense1">被申请人答辩称：其一，约 20% 货物型号与合同不符，已及时提出质量异议；其二，合同约定违约金标准偏高，请求仲裁庭调减；其三，实际签收方为关联公司，责任主体应进一步核实。</p>
+  <p data-paragraph-id="p-defense2">申请人答辩称：被申请人签收回执和对账邮件已形成完整履约证据链，且被申请人庭审陈述与书面答辩存在差异，不足以否定其付款义务。</p>
+  <p data-paragraph-id="p-defense3">仲裁庭已组织双方围绕合同履行、货物质量、付款节点及违约责任进行了充分举证、质证与辩论。</p>
+  <p data-paragraph-id="p-defense4">本案现已审理终结，依法进入评议和裁决阶段。</p>
 
   <h2 data-paragraph-id="sec-investigation">五、仲裁庭查明</h2>
-  <p data-paragraph-id="p-inv1">经审理查明：</p>
-  <p data-paragraph-id="p-inv2">2023年12月1日，申请人与被申请人签订《购销合同》，约定货物规格、数量、总价款 1,200,000.00 元及付款方式。合同第 8 条约定逾期付款违约金按未付金额每日万分之五计算；合同第 12 条约定因履行争议提交北京仲裁委员会仲裁。</p>
-  <p data-paragraph-id="p-inv3">2023年12月8日，申请人完成全部货物交付，签收回执有被申请人经办人签字并加盖公章。签收回执载明货物数量与合同一致，但注明"型号待进一步验收"。</p>
-  <p data-paragraph-id="p-inv4">2024年1月5日，双方通过电子邮件确认应付货款余额为 1,180,000.00 元。2024年1月8日，被申请人支付 20,000.00 元。此后经催告未再支付。</p>
-  <p data-paragraph-id="p-inv5">庭审中被申请人称"型号不符仅涉及部分批次，不影响整体使用"，该陈述与答辩书中的质量抗辩立场存在明显差异。</p>
+  <p data-paragraph-id="p-inv1">经审理查明：申请人与被申请人签署合同事实清楚，仲裁条款合法有效，本会对本案有管辖权。</p>
+  <p data-paragraph-id="p-inv2">合同明确约定付款义务与违约责任。申请人提交的发货单、签收回执、对账邮件与催款函能够相互印证，证据链条完整。</p>
+  <p data-paragraph-id="p-inv3">签收回执中“型号待进一步验收”仅表明验收流程尚在进行，不能当然推导为全面拒付货款，且被申请人未提交充分退换货或减价证据。</p>
+  <p data-paragraph-id="p-inv4">双方通过电子邮件确认应付货款余额为 1,180,000.00 元。2024 年 1 月 8 日被申请人支付 20,000.00 元后，电子邮件确认应付货款余额仍长期未清偿。</p>
+  <p data-paragraph-id="p-inv5">庭审中被申请人关于质量异议和主体抗辩的陈述存在明显差异，未能形成稳定、一致且有充分证据支持的抗辩体系。</p>
 
-  <h2 data-paragraph-id="sec-analysis">六、仲裁庭认为</h2>
+  <h2 data-paragraph-id="sec-analysis">六、仲裁庭意见</h2>
   <p data-paragraph-id="p-focus-title"><strong>争议焦点一：被申请人是否应支付剩余货款</strong></p>
-  <p data-paragraph-id="p-focus1">仲裁庭认为，申请人已提交发货单、签收回执和对账邮件形成完整证据链，足以证明其已按合同约定完成交付义务。被申请人虽提出质量异议，但其庭审陈述已弱化答辩立场，且未提交充分的退换货或减价依据。综合考量，被申请人应支付剩余货款 1,180,000.00 元。</p>
+  <p data-paragraph-id="p-focus1">仲裁庭认为，申请人已履行主要供货义务，且被申请人对欠款余额已有确认。被申请人未能提交足以否定付款义务的反证，故应支付剩余货款 1,180,000.00 元。</p>
   <p data-paragraph-id="p-focus-title2"><strong>争议焦点二：违约金是否应予调减</strong></p>
-  <p data-paragraph-id="p-focus2">关于违约金标准，合同约定为未付金额每日万分之五。仲裁庭注意到该比例折合年化约 18.25%，结合当前市场利率水平及申请人实际损失情况，该比例尚在合理范围内。被申请人未能举证证明约定违约金"明显过高"，故仲裁庭对被申请人的调减请求不予支持。</p>
+  <p data-paragraph-id="p-focus2">关于违约金标准，合同约定为未付金额每日万分之五。该比例折合年化约 18.25%，结合交易性质、违约持续期间及申请人实际损失，尚未达到“明显过高”的调减标准，仲裁庭对调减请求不予支持。</p>
   <p data-paragraph-id="p-focus-title3"><strong>争议焦点三：责任主体认定</strong></p>
-  <p data-paragraph-id="p-focus3">关于被申请人提出的主体抗辩，仲裁庭认为合同签署方为被申请人，签收回执亦加盖被申请人公章，对账邮件确认方为被申请人经办人。被申请人关于"关联公司签收"的主张缺乏充分证据支持，不足以免除其合同项下的付款义务。</p>
+  <p data-paragraph-id="p-focus3">被申请人系合同签署主体，签收回执亦加盖被申请人公章，对账邮件确认人亦为被申请人经办人员。其“关联公司签收”主张证据不足，不影响其合同项下责任承担。</p>
 
-  <h2 data-paragraph-id="sec-ruling">七、裁决主文</h2>
-  <p data-paragraph-id="p-ruling1">综上，仲裁庭裁决如下：</p>
-  <p data-paragraph-id="p-ruling2">一、被申请人上海贸易有限公司于本裁决书送达之日起十五日内，向申请人北京科技有限公司支付货款人民币 1,180,000.00 元；</p>
-  <p data-paragraph-id="p-ruling3">二、被申请人上海贸易有限公司于本裁决书送达之日起十五日内，向申请人北京科技有限公司支付逾期付款违约金人民币 20,000.00 元；</p>
+  <h2 data-paragraph-id="sec-ruling">七、裁决</h2>
+  <p data-paragraph-id="p-ruling1">据此，仲裁庭依据合同约定及相关法律规定，裁决如下：</p>
+  <p data-paragraph-id="p-ruling2">一、被申请人上海贸易有限公司应于本裁决书送达之日起十五日内向申请人北京科技有限公司支付货款人民币 1,180,000.00 元；</p>
+  <p data-paragraph-id="p-ruling3">二、被申请人上海贸易有限公司应于本裁决书送达之日起十五日内向申请人支付逾期付款违约金人民币 20,000.00 元；</p>
   <p data-paragraph-id="p-ruling4">三、本案仲裁费用人民币 25,000.00 元，由被申请人承担。</p>
   <p data-paragraph-id="p-ruling5" style="text-align: right">首席仲裁员：王某某</p>
-  <p data-paragraph-id="p-ruling6" style="text-align: right">仲裁员：李某某　张某某</p>
-  <p data-paragraph-id="p-ruling7" style="text-align: right">二〇二六年三月十日</p>
+  <p data-paragraph-id="p-ruling6" style="text-align: right">仲 裁 员：李某某　张某某</p>
+  <p data-paragraph-id="p-ruling7" style="text-align: right">二〇二六年三月十日　北京</p>
 `;
 
 export const MOCK_CHECK_GROUPS = [
@@ -341,7 +341,7 @@ export const MOCK_CHECK_GROUPS = [
     id: 'cg1',
     title: '格式与术语',
     items: [
-      { id: 'c1', type: 'format', desc: '案号格式建议核对是否与仲裁委登记系统一致', paragraphId: 'p-caseno', paragraphLabel: '案号', severity: 'warning', targetText: '(2026)京仲案字第 0188 号' },
+      { id: 'c1', type: 'format', desc: '案号格式建议核对是否与仲裁委登记系统一致', paragraphId: 'p-caseno', paragraphLabel: '案号', severity: 'warning', targetText: '（2026）京仲案字第 0188 号' },
       { id: 'c2', type: 'format', desc: '裁决主文金额需与事实查明段金额严格一致', paragraphId: 'p-ruling2', paragraphLabel: '裁决主文第一项', severity: 'error', targetText: '1,180,000.00 元' },
       { id: 'c3', type: 'format', desc: '"本委"与"仲裁庭"称谓需全文统一', paragraphId: 'p-claim1', paragraphLabel: '仲裁请求首段', severity: 'warning', targetText: '申请人请求仲裁庭裁决如下' }
     ]
