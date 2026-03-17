@@ -244,17 +244,14 @@ const activePresetKey = ref(displayPresets.value[0]?.key || 'focus');
 
 watch(displayPresets, (presets) => {
   if (presets.length > 0 && !presets.find(p => p.key === activePresetKey.value)) {
-    activePresetKey.value = presets[0].key;
+    activePresetKey.value = presets[0]?.key || 'focus';
   }
 });
 
-const currentPresetOptions = computed(() => {
+const currentPresetOptions = computed<Array<{ key: string; label: string }>>(() => {
   const section = props.currentSection || '';
   const sectionOpts = SECTION_AI_OPTIONS[section];
-  if (sectionOpts && sectionOpts[activePresetKey.value]) {
-    return sectionOpts[activePresetKey.value];
-  }
-  return AI_PRESET_OPTIONS[activePresetKey.value] || [];
+  return sectionOpts?.[activePresetKey.value] || AI_PRESET_OPTIONS[activePresetKey.value] || [];
 });
 
 const activePresetLabel = computed(() => {
@@ -334,6 +331,44 @@ defineExpose({ switchToCommentAndEdit, switchToCommentTab });
 </script>
 
 <style scoped>
+:deep(.wb-tabs) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  margin: 10px 10px 0;
+  border: 1px solid #c7d8f8;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 62%, #2563eb 100%);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.16);
+}
+:deep(.wb-tab-item) {
+  flex: 1;
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  padding: 6px 8px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+:deep(.wb-tab-item:hover) {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+}
+:deep(.wb-tab-item.active) {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.26);
+}
+:deep(.wb-tab-item.active::after) {
+  display: none;
+}
+
 .section-context-bar {
   display: flex;
   align-items: center;

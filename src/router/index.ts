@@ -17,7 +17,7 @@ const routes = [
         path: 'dossier-reading',
         name: 'dossier-reading',
         component: () => import('../views/dossierReading/index.vue'),
-        meta: { title: '智能阅卷' }
+        meta: { title: '卷宗阅核' }
       },
       {
         path: 'doc-writer',

@@ -1,5 +1,5 @@
 <template>
-  <div class="three-column-layout">
+  <div class="three-column-layout doc-review-page">
     <LeftCasePanel
       :summary="summary"
       :materials="materials"
@@ -48,3 +48,40 @@ const handleSelectModule = (module) => {
   activeModuleKey.value = module.key;
 };
 </script>
+
+<style scoped>
+.doc-review-page {
+  background: linear-gradient(180deg, #f3f7ff 0%, #eef4ff 100%);
+}
+.doc-review-page :deep(.left-panel),
+.doc-review-page :deep(.middle-panel),
+.doc-review-page :deep(.right-panel) {
+  border: 1px solid #cfdcf3;
+  box-shadow: 0 10px 24px rgba(30, 58, 138, 0.08);
+  background: #fff;
+}
+.doc-review-page :deep(.panel-header),
+.doc-review-page :deep(.panel-header-themed) {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 62%, #2563eb 100%);
+  color: #fff;
+  border-bottom: 1px solid rgba(191, 219, 254, 0.45);
+}
+.doc-review-page :deep(.panel-header .module-title),
+.doc-review-page :deep(.panel-header span) {
+  color: #fff;
+}
+.doc-review-page :deep(.panel-content) {
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 130px);
+}
+.doc-review-page :deep(.wb-card) {
+  border-color: #d8e4f8;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
+}
+.doc-review-page :deep(.wb-btn) {
+  border-color: #cad7f0;
+}
+.doc-review-page :deep(.wb-btn:hover) {
+  border-color: #8eaef3;
+  background: #eef4ff;
+}
+</style>

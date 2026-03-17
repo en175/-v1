@@ -10,24 +10,11 @@
             <h3 class="section-title-main">案情概览</h3>
           </div>
           <div class="overview-summary">
-            <div class="overview-grid">
-              <div
-                v-for="item in compactOverview"
-                :key="item.label"
-                class="overview-item overview-item-compact"
-              >
-                <div class="overview-label">{{ item.label }}</div>
-                <div class="overview-value">{{ item.value }}</div>
-              </div>
-            </div>
-            <div
-              v-for="item in detailedOverview"
-              :key="item.label"
-              class="overview-item"
-              :class="[item.tone || 'neutral', { full: item.span === 'full' }]"
-            >
-              <div class="overview-label">{{ item.label }}</div>
-              <div class="overview-value">{{ item.value }}</div>
+            <div class="overview-article">
+              <p v-for="item in caseOverview" :key="item.label" class="overview-line">
+                <span class="overview-line-label">{{ item.label }}：</span>
+                <span class="overview-line-text">{{ item.value }}</span>
+              </p>
             </div>
           </div>
         </section>
@@ -61,7 +48,7 @@
                 >
                   来源：{{ field.source }}
                 </button>
-                <span v-if="evidenceMap[field.key]" class="anchor-badge">证据第{{ evidenceMap[field.key].page }}页</span>
+                <span v-if="evidenceMap[field.key]" class="anchor-badge">证据第{{ evidenceMap[field.key]?.page }}页</span>
               </div>
               <div class="field-note">{{ fieldMeta[field.key]?.note || '待人工复核' }}</div>
             </div>
@@ -75,11 +62,11 @@
           :style="{ top: `${popoverStyle.top}px`, left: `${popoverStyle.left}px` }"
         >
           <div class="popover-head">
-            <span>{{ evidenceMap[activeEvidenceKey].sourceName }}</span>
+            <span>{{ evidenceMap[activeEvidenceKey]?.sourceName }}</span>
             <button type="button" class="popover-close" @click="closeEvidence">关闭</button>
           </div>
-          <div class="evidence-anchor">{{ evidenceMap[activeEvidenceKey].anchor }}</div>
-          <div class="evidence-snippet">{{ evidenceMap[activeEvidenceKey].snippet }}</div>
+          <div class="evidence-anchor">{{ evidenceMap[activeEvidenceKey]?.anchor }}</div>
+          <div class="evidence-snippet">{{ evidenceMap[activeEvidenceKey]?.snippet }}</div>
         </div>
 
         <div class="notice-box">
@@ -123,8 +110,6 @@ const groupedSections = computed(() => {
   });
   return Object.keys(bucket).map((name) => ({ name, items: bucket[name] || [] }));
 });
-const compactOverview = computed(() => props.caseOverview.filter((item) => item.span !== 'full'));
-const detailedOverview = computed(() => props.caseOverview.filter((item) => item.span === 'full'));
 const getFieldStatus = (fieldKey: string) => props.fieldMeta[fieldKey]?.status || 'risk';
 const setSourceRef = (fieldKey: string, el: unknown) => {
   sourceRefMap.value[fieldKey] = (el as HTMLElement | null) || null;
@@ -218,56 +203,26 @@ watch(
   border: 1px solid #d9e4f6;
   border-radius: 10px;
   background: #fff;
-  overflow: hidden;
+  padding: 12px 14px;
 }
-.overview-grid {
+.overview-article {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0;
+  gap: 10px;
 }
-.overview-item {
-  padding: 10px 12px;
-  background: #fff;
-  border-top: 1px solid #e6edf8;
-}
-.overview-item-compact {
-  min-height: 88px;
-}
-.overview-item-compact:nth-child(odd) {
-  border-right: 1px solid #e6edf8;
-}
-.overview-grid .overview-item-compact:first-child,
-.overview-grid .overview-item-compact:nth-child(2) {
-  border-top: none;
-}
-.overview-grid .overview-item-compact:last-child:nth-child(odd) {
-  grid-column: 1 / -1;
-  border-right: none;
-}
-.overview-item.full {
-  grid-column: 1 / -1;
-}
-.overview-item.success {
-  border-color: #c8efd9;
-  background: #f3fbf6;
-}
-.overview-item.warning {
-  border-color: #ffe1bb;
-  background: #fffaf1;
-}
-.overview-item.danger {
-  border-color: #ffd1d1;
-  background: #fff5f5;
-}
-.overview-label {
-  font-size: 12px;
-  color: var(--color-text-sub);
-  margin-bottom: 6px;
-}
-.overview-value {
+.overview-line {
+  margin: 0;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.75;
+  color: var(--color-text-body);
+}
+.overview-line-label {
+  font-weight: 700;
   color: var(--color-text-title);
+}
+.overview-line-text {
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--color-text-body);
 }
 .section-block {
   margin-bottom: 0;

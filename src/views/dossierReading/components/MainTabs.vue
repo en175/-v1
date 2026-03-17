@@ -1,7 +1,7 @@
 <template>
   <div class="middle-panel">
     <div class="panel-header panel-header-themed">
-      <span>智能阅卷</span>
+      <span>卷宗阅核</span>
       <span class="header-request">{{ currentRequest.requestStatement }}</span>
     </div>
     <div class="panel-content">
@@ -21,7 +21,7 @@
 
       <section class="timeline-section">
         <div class="section-head">
-          <h3 class="section-title">案件时间轴</h3>
+          <h3 class="section-title">争议事实时序</h3>
           <span class="section-tip">横向浏览关键节点，点击后联动到对应请求要件和事实</span>
         </div>
         <div class="timeline-row">

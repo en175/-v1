@@ -389,18 +389,18 @@ export const MOCK_COMMENTS = [
 ];
 
 export const MOCK_AI_CANDIDATES: Record<string, string> = {
-  continue: '仲裁庭进一步认为，被申请人在收到催告后仍未主动履行付款义务，已构成持续违约。',
-  rewrite: '仲裁庭审理后认为：申请人履行供货义务事实清楚，被申请人逾期付款事实成立，应承担违约责任。',
-  expand: '结合双方提交的合同文本、签收记录及往来邮件，能够形成完整证据链，足以证明申请人已按约履约，被申请人未在约定期限内付款，违约责任应予确认。',
-  simplify: '申请人已供货，被申请人逾期未付款，构成违约。',
-  summarize: '本案核心结论为：履约事实成立、逾期付款成立、违约责任成立。',
+  continue: '仲裁庭进一步认为，被申请人在收到催告后仍未履行付款义务，违约状态持续存在，应继续承担相应给付责任。',
+  rewrite: '建议改写为规范裁判语体：申请人履行合同义务事实清楚，被申请人未按约付款事实成立，应依法承担违约责任。',
+  expand: '结合合同、工程结算复核报告、付款台账及催告记录，现有证据已形成“合同关系—履约完成—逾期未付—损失后果”的完整证明链，可支撑主文对应裁断。',
+  simplify: '申请人已履约，被申请人逾期付款，依法应承担违约责任。',
+  summarize: '审理结论可归纳为：合同有效、履约成立、逾期付款成立、违约责任成立。',
   custom: '根据您的指令，建议将该段调整为"先述事实，再述规则，最后给出裁判结论"的三段式表述。'
 };
 
 export const AI_ACTIONS = [
-  { key: 'continue', label: '续写', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>', color: '#3B82F6' },
-  { key: 'rewrite', label: '改写', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="M15 5l4 4"/></svg>', color: '#8B5CF6' },
-  { key: 'expand', label: '扩写', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>', color: '#10B981' },
-  { key: 'simplify', label: '精简', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6"/><path d="M4 18h6"/><path d="M4 10h16"/></svg>', color: '#F59E0B' },
-  { key: 'summarize', label: '总结', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>', color: '#EC4899' }
+  { key: 'continue', label: '续拟说理', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>', color: '#3B82F6' },
+  { key: 'rewrite', label: '规范表述', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="M15 5l4 4"/></svg>', color: '#8B5CF6' },
+  { key: 'expand', label: '补强论证', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>', color: '#10B981' },
+  { key: 'simplify', label: '提炼要旨', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6"/><path d="M4 18h6"/><path d="M4 10h16"/></svg>', color: '#F59E0B' },
+  { key: 'summarize', label: '归纳结论', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>', color: '#EC4899' }
 ];

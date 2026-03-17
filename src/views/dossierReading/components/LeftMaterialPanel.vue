@@ -1,14 +1,14 @@
 <template>
   <div class="left-panel">
-    <div class="panel-header panel-header-themed">请求导航</div>
+    <div class="panel-header panel-header-themed">仲裁请求导引</div>
     <div class="panel-content">
       <div class="request-summary">
-        <div class="summary-label">当前主审请求</div>
+        <div class="summary-label">当前审查请求</div>
         <div class="summary-value">{{ currentRequest.requestStatement }}</div>
       </div>
 
       <div class="section-head">
-        <span class="section-title">请求列表</span>
+        <span class="section-title">仲裁请求清单</span>
         <span class="section-count">{{ requests.length }} 项</span>
       </div>
       <div class="request-list">
@@ -35,7 +35,7 @@
       </div>
 
       <div class="section-head materials-head">
-        <span class="section-title">卷宗材料</span>
+        <span class="section-title">在卷证据材料</span>
         <span class="section-count">{{ materials.length }} 份</span>
       </div>
       <ul class="wb-list material-list">

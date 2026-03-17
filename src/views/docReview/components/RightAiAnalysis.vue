@@ -1,10 +1,10 @@
 <template>
   <div class="right-panel">
-    <div class="panel-header">智能分析与审签支持</div>
+    <div class="panel-header">裁决审查与签发支持</div>
     <div class="panel-content">
       <div class="wb-card section-card">
         <div class="section-head">
-          <span>模块审查建议</span>
+          <span>审查要点建议</span>
         </div>
         <div class="summary-title">{{ activeInsight.title }}</div>
         <div class="summary-text">{{ activeInsight.summary }}</div>
@@ -14,7 +14,7 @@
       </div>
 
       <div class="wb-card section-card">
-        <div class="section-head">智能分析评分</div>
+        <div class="section-head">裁决质量评估</div>
         <div
           v-for="(item, idx) in results"
           :key="idx"
@@ -51,7 +51,7 @@ const props = defineProps({
 });
 
 const activeInsight = computed(() => props.moduleInsights?.[props.activeModuleKey] || {
-  title: '模块审查建议',
+  title: '审查要点建议',
   summary: '请选择左侧模块以查看建议。',
   tips: []
 });
